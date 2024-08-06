@@ -1,30 +1,28 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+const express = require('express');
+const mongoose = require('mongoose');
+const path = require('path');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
+// Initialize express app
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
 
-// Connect to MongoDB
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
+  useUnifiedTopology: true
 });
 
 const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-  console.log("Connected to MongoDB");
+
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => {
+  console.log('Connected to MongoDB');
 });
 
-// Define Schemas and Models
+// Define the visit schema
 const visitSchema = new mongoose.Schema({
   startTime: Date,
   endTime: Date,
@@ -35,43 +33,28 @@ const visitSchema = new mongoose.Schema({
   viewMoreClicks: Number,
 });
 
-const Visit = mongoose.model("Visit", visitSchema);
+const Visit = mongoose.model('Visit', visitSchema);
 
-// API Endpoint to Save Visit Data
-app.post("/api/save-visit", async (req, res) => {
-  const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks } = req.body;
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, 'public')));
 
-  const newVisit = new Visit({
-    startTime,
-    endTime,
-    duration,
-    clickCount,
-    contactClicks,
-    whatsappClicks,
-    viewMoreClicks,
-  });
-
+// Endpoint to get visit data
+app.get('/api/get-visits', async (req, res) => {
   try {
-    await newVisit.save();
-    res.status(200).json({ message: "Visit data saved successfully" });
+    const visits = await Visit.find();
+    res.json(visits);
   } catch (err) {
-    console.error("Error saving visit:", err);
-    res.status(500).json({ error: "Failed to save visit data" });
+    res.status(500).json({ message: err.message });
   }
 });
 
-// API Endpoint to Get Visit Data for Dashboard
-app.get("/api/get-visits", async (req, res) => {
-  try {
-    const visits = await Visit.find({});
-    res.status(200).json(visits);
-  } catch (err) {
-    console.error("Error retrieving visits:", err);
-    res.status(500).json({ error: "Failed to retrieve visit data" });
-  }
+// Serve the dashboard.html file
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// Start the Server
+// Start the server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
