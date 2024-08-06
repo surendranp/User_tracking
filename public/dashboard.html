@@ -1,0 +1,67 @@
+<!-- public/dashboard.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Tracking Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .table-container {
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Tracking Dashboard</h1>
+    <div class="table-container">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Duration (s)</th>
+                    <th>Clicks</th>
+                    <th>Contact Clicks</th>
+                    <th>WhatsApp Clicks</th>
+                    <th>View More Clicks</th>
+                </tr>
+            </thead>
+            <tbody id="visitTable">
+                <!-- Visit data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Fetch visit data and display in the table
+        fetch("http://localhost:3000/api/get-visits")
+            .then(response => response.json())
+            .then(visits => {
+                const visitTable = document.getElementById("visitTable");
+                visits.forEach((visit, index) => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${new Date(visit.startTime).toLocaleString()}</td>
+                        <td>${new Date(visit.endTime).toLocaleString()}</td>
+                        <td>${visit.duration}</td>
+                        <td>${visit.clickCount}</td>
+                        <td>${visit.contactClicks}</td>
+                        <td>${visit.whatsappClicks}</td>
+                        <td>${visit.viewMoreClicks}</td>
+                    `;
+                    visitTable.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error fetching visit data:", error));
+    </script>
+</body>
+</html>
