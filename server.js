@@ -1,28 +1,33 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+// server.js
 
-// Initialize express app
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
-// MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
+// Connect to MongoDB
+// mongoose.connect("mongodb://localhost:27017/userTrackingDB", {
+    mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
 const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-db.once('open', () => {
-  console.log('Connected to MongoDB');
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+  console.log("Connected to MongoDB");
 });
 
-// Define the visit schema
+// Define Schemas and Models
 const visitSchema = new mongoose.Schema({
   startTime: Date,
   endTime: Date,
@@ -33,28 +38,43 @@ const visitSchema = new mongoose.Schema({
   viewMoreClicks: Number,
 });
 
-const Visit = mongoose.model('Visit', visitSchema);
+const Visit = mongoose.model("Visit", visitSchema);
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+// API Endpoint to Save Visit Data
+app.post("/api/save-visit", async (req, res) => {
+  const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks } = req.body;
 
-// Endpoint to get visit data
-app.get('/api/get-visits', async (req, res) => {
+  const newVisit = new Visit({
+    startTime,
+    endTime,
+    duration,
+    clickCount,
+    contactClicks,
+    whatsappClicks,
+    viewMoreClicks,
+  });
+
   try {
-    const visits = await Visit.find();
-    res.json(visits);
+    await newVisit.save();
+    res.status(200).json({ message: "Visit data saved successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error saving visit:", err);
+    res.status(500).json({ error: "Failed to save visit data" });
   }
 });
 
-// Serve the dashboard.html file
-app.get('/dashboard', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+// API Endpoint to Get Visit Data for Dashboard
+app.get("/api/get-visits", async (req, res) => {
+  try {
+    const visits = await Visit.find({});
+    res.status(200).json(visits);
+  } catch (err) {
+    console.error("Error retrieving visits:", err);
+    res.status(500).json({ error: "Failed to retrieve visit data" });
+  }
 });
 
-// Start the server
-const PORT = process.env.PORT || 3000;
+// Start the Server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
