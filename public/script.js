@@ -1,9 +1,8 @@
-// public/script.js
-
 let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
 let viewMoreClicks = 0;
+let textSelections = 0;
 
 const startTime = new Date();
 
@@ -23,13 +22,35 @@ document.getElementById("viewMoreButton").addEventListener("click", () => {
     clickCount++;
 });
 
+// Track text selections
+document.addEventListener("mouseup", () => {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText) {
+        textSelections++;
+        sendTextSelection(selectedText);
+    }
+});
+
+// Function to send text selection data to the server
+function sendTextSelection(text) {
+    fetch("/api/save-text-selection", { // Updated endpoint path
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ selectedText: text })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Text selection saved:", data))
+    .catch(error => console.error("Error saving text selection:", error));
+}
+
 // Track page leave event
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
-    // Save visit data to the server
-    fetch("http://localhost:3000/api/save-visit", {
+    fetch("/api/save-visit", { // Updated endpoint path
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -41,7 +62,8 @@ window.addEventListener("beforeunload", () => {
             clickCount,
             contactClicks,
             whatsappClicks,
-            viewMoreClicks
+            viewMoreClicks,
+            textSelections // Include textSelections
         })
     })
     .then(response => response.json())
