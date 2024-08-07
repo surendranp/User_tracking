@@ -15,17 +15,22 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Connect to MongoDB
-// mongoose.connect("mongodb://localhost:27017/userTrackingDB", {
-    mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect("mongodb://localhost:27017/userTrackingDB", {
+    // mongoose.connect(process.env.MONGODB_URI, {
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true,
+  maxPoolSize: 10 // Optional: Adjust the connection pool size as needed
+}).then(() => {
+  console.log("Connected to MongoDB");
+}).catch((err) => {
+  console.error("Connection error:", err);
 });
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
   console.log("Connected to MongoDB");
-});
+}); 
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
