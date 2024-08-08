@@ -29,20 +29,20 @@ db.once("open", () => {
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    startTime: Date,
-    endTime: Date,
-    duration: Number,
-    clickCount: Number,
-    contactClicks: Number,
-    whatsappClicks: Number,
-    viewMoreClicks: Number,
-    textSelections: Number
+    startTime: { type: Date, required: true },
+    endTime: { type: Date, required: true },
+    duration: { type: Number, required: true },
+    clickCount: { type: Number, required: true },
+    contactClicks: { type: Number, required: true },
+    whatsappClicks: { type: Number, required: true },
+    viewMoreClicks: { type: Number, required: true },
+    textSelections: { type: Number, required: true }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
-    selectedText: String,
+    selectedText: { type: String, required: true },
     timestamp: { type: Date, default: Date.now }
 });
 
@@ -51,11 +51,39 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
     console.log("Received visit data:", req.body);
-    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
-
-    const newVisit = new Visit({
+    
+    const {
         startTime,
         endTime,
+        duration,
+        clickCount,
+        contactClicks,
+        whatsappClicks,
+        viewMoreClicks,
+        textSelections
+    } = req.body;
+
+    // Basic validation
+    if (
+        !startTime || !endTime || !duration || !clickCount ||
+        !contactClicks || !whatsappClicks || !viewMoreClicks || !textSelections
+    ) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    if (
+        isNaN(new Date(startTime).getTime()) ||
+        isNaN(new Date(endTime).getTime()) ||
+        isNaN(duration) || isNaN(clickCount) ||
+        isNaN(contactClicks) || isNaN(whatsappClicks) ||
+        isNaN(viewMoreClicks) || isNaN(textSelections)
+    ) {
+        return res.status(400).json({ error: "Invalid data types" });
+    }
+
+    const newVisit = new Visit({
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
         duration,
         clickCount,
         contactClicks,
@@ -77,6 +105,10 @@ app.post("/api/save-visit", async (req, res) => {
 app.post("/api/save-text-selection", async (req, res) => {
     console.log("Received text selection data:", req.body); 
     const { selectedText } = req.body;
+
+    if (!selectedText) {
+        return res.status(400).json({ error: "Missing selectedText field" });
+    }
 
     const newTextSelection = new TextSelection({
         selectedText
