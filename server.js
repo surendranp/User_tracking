@@ -14,7 +14,7 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
+    maxPoolSize: 10 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
@@ -49,38 +49,9 @@ const textSelectionSchema = new mongoose.Schema({
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
-// app.post("/api/save-visit", async (req, res) => {
-//     console.log("Received visit data:", req.body);
-//     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
-
-//     const newVisit = new Visit({
-//         startTime,
-//         endTime,
-//         duration,
-//         clickCount,
-//         contactClicks,
-//         whatsappClicks,
-//         viewMoreClicks,
-//         textSelections // Include textSelections field
-//     });
-
-//     try {
-//         await newVisit.save();
-//         res.status(200).json({ message: "Visit data saved successfully" });
-//     } catch (err) {
-//         console.error("Error saving visit:", err);
-//         res.status(500).json({ error: "Failed to save visit data" });
-//     }
-// });
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Log incoming request data
-
+    console.log("Received visit data:", req.body);
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
-
-    if (!startTime || !endTime || !duration || clickCount === undefined || contactClicks === undefined || whatsappClicks === undefined || viewMoreClicks === undefined || textSelections === undefined) {
-        console.error("Invalid request data:", req.body);
-        return res.status(400).json({ error: "Invalid request data" });
-    }
 
     const newVisit = new Visit({
         startTime,
@@ -90,12 +61,11 @@ app.post("/api/save-visit", async (req, res) => {
         contactClicks,
         whatsappClicks,
         viewMoreClicks,
-        textSelections
+        textSelections // Include textSelections field
     });
 
     try {
-        const savedVisit = await newVisit.save();
-        console.log("Visit data saved successfully:", savedVisit);
+        await newVisit.save();
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);

@@ -30,7 +30,7 @@ document.addEventListener("mouseup", () => {
         textSelections++;
         selectedTexts.push(selectedText); // Store selected text
         // Send selected text to the server
-        fetch("\https://usertracking-test.up.railway.app/api/save-text-selection", {
+        fetch("https://usertracking-test.up.railway.app/api/save-text-selection", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
