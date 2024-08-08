@@ -13,9 +13,9 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:3000/userTrackingDB", {
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
     maxPoolSize: 100 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
