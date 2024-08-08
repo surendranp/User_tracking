@@ -36,7 +36,7 @@ const visitSchema = new mongoose.Schema({
     contactClicks: Number,
     whatsappClicks: Number,
     viewMoreClicks: Number,
-    textSelections: Number // Added textSelections field
+    textSelections: Number
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -50,6 +50,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
+    console.log("Received visit data:", req.body);
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
 
     const newVisit = new Visit({
@@ -60,7 +61,7 @@ app.post("/api/save-visit", async (req, res) => {
         contactClicks,
         whatsappClicks,
         viewMoreClicks,
-        textSelections // Include textSelections field
+        textSelections
     });
 
     try {
@@ -68,12 +69,13 @@ app.post("/api/save-visit", async (req, res) => {
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
-        res.status(500).json({ error: "Failed to save visit data" });
+        res.status(500).json({ error: "Failed to save visit data", details: err.message });
     }
 });
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
+    console.log("Received text selection data:", req.body); 
     const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
@@ -85,7 +87,7 @@ app.post("/api/save-text-selection", async (req, res) => {
         res.status(200).json({ message: "Text selection saved successfully" });
     } catch (err) {
         console.error("Error saving text selection:", err);
-        res.status(500).json({ error: "Failed to save text selection data" });
+        res.status(500).json({ error: "Failed to save text selection data", details: err.message });
     }
 });
 
@@ -96,7 +98,7 @@ app.get("/api/get-visits", async (req, res) => {
         res.status(200).json(visits);
     } catch (err) {
         console.error("Error retrieving visits:", err);
-        res.status(500).json({ error: "Failed to retrieve visit data" });
+        res.status(500).json({ error: "Failed to retrieve visit data", details: err.message });
     }
 });
 
@@ -107,7 +109,7 @@ app.get("/api/get-text-selections", async (req, res) => {
         res.status(200).json(textSelections);
     } catch (err) {
         console.error("Error retrieving text selections:", err);
-        res.status(500).json({ error: "Failed to retrieve text selection data" });
+        res.status(500).json({ error: "Failed to retrieve text selection data", details: err.message });
     }
 });
 
