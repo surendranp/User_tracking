@@ -38,7 +38,7 @@ document.addEventListener("mouseup", () => {
     }
 });
 
-window.addEventListener("beforeunload", (event) => {
+window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
