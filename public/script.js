@@ -31,7 +31,7 @@ document.addEventListener("mouseup", () => {
     selectedTexts.push(selectedText); // Store selected text
 
     // Send selected text to the server
-    fetch("https://usertracking-test.up.railway.app/api/save-text-selection", {
+    fetch("/api/save-text-selection", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -50,7 +50,7 @@ window.addEventListener("beforeunload", (event) => {
   const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
   // Ensure data is sent before the page unloads
-  navigator.sendBeacon("https://usertracking-test.up.railway.app/api/save-visit", JSON.stringify({
+  navigator.sendBeacon("/api/save-visit", JSON.stringify({
     startTime,
     endTime,
     duration,
