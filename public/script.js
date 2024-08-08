@@ -30,7 +30,7 @@ document.addEventListener("mouseup", () => {
         textSelections++;
         selectedTexts.push(selectedText); // Store selected text
         // Send selected text to the server
-        fetch("http://localhost:3000/api/save-text-selection", {
+        fetch("\https://usertracking-test.up.railway.app/api/save-text-selection", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -43,13 +43,13 @@ document.addEventListener("mouseup", () => {
     }
 });
 
-// Track page leave event
+// Track page leave event.
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
     // Save visit data to the server
-    fetch("http://localhost:3000/api/save-visit", {
+    fetch("https://usertracking-test.up.railway.app/api/save-visit", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

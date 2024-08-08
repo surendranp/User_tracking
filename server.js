@@ -50,6 +50,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
+    onsole.log("Received visit data:", req.body);
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
 
     const newVisit = new Visit({
@@ -74,6 +75,7 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
+    console.log("Received text selection data:", req.body); 
     const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
