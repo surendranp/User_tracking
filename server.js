@@ -71,9 +71,12 @@ app.post("/api/save-visit", async (req, res) => {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
+    const startTimeDate = new Date(startTime);
+    const endTimeDate = new Date(endTime);
+
     if (
-        isNaN(new Date(startTime).getTime()) ||
-        isNaN(new Date(endTime).getTime()) ||
+        isNaN(startTimeDate.getTime()) ||
+        isNaN(endTimeDate.getTime()) ||
         isNaN(duration) || isNaN(clickCount) ||
         isNaN(contactClicks) || isNaN(whatsappClicks) ||
         isNaN(viewMoreClicks) || isNaN(textSelections)
@@ -82,8 +85,8 @@ app.post("/api/save-visit", async (req, res) => {
     }
 
     const newVisit = new Visit({
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: startTimeDate,
+        endTime: endTimeDate,
         duration,
         clickCount,
         contactClicks,
