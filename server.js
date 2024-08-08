@@ -14,9 +14,7 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 100 // Optional: Adjust the connection pool size as needed
+    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
@@ -99,6 +97,17 @@ app.get("/api/get-visits", async (req, res) => {
     } catch (err) {
         console.error("Error retrieving visits:", err);
         res.status(500).json({ error: "Failed to retrieve visit data" });
+    }
+});
+
+// API Endpoint to Get Text Selection Data for Dashboard
+app.get("/api/get-text-selections", async (req, res) => {
+    try {
+        const textSelections = await TextSelection.find({});
+        res.status(200).json(textSelections);
+    } catch (err) {
+        console.error("Error retrieving text selections:", err);
+        res.status(500).json({ error: "Failed to retrieve text selection data" });
     }
 });
 

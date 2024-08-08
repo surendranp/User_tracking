@@ -3,65 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Tracking Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
+            margin: 20px;
         }
-        .table-container {
-            max-width: 800px;
-            margin: auto;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>User Tracking Dashboard</h1>
-    <div class="table-container">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Duration (s)</th>
-                    <th>Clicks</th>
-                    <th>Contact Clicks</th>
-                    <th>WhatsApp Clicks</th>
-                    <th>View More Clicks</th>
-                    <th>Selected Text</th>
-                </tr>
-            </thead>
-            <tbody id="visitTable">
-                <!-- Visit data will be inserted here -->
-            </tbody>
-        </table>
-    </div>
+    <h1>Dashboard</h1>
+    <h2>Visit Data</h2>
+    <table id="visitTable">
+        <thead>
+            <tr>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Duration (s)</th>
+                <th>Click Count</th>
+                <th>Contact Clicks</th>
+                <th>WhatsApp Clicks</th>
+                <th>View More Clicks</th>
+                <th>Text Selections</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+
+    <h2>Text Selection Data</h2>
+    <table id="textSelectionTable">
+        <thead>
+            <tr>
+                <th>Selected Text</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
 
     <script>
-        // Fetch visit data and display in the table
+        // Fetch visit data and populate the table
         fetch("http://localhost:3000/api/get-visits")
             .then(response => response.json())
             .then(visits => {
-                const visitTable = document.getElementById("visitTable");
-                visits.forEach((visit, index) => {
+                const visitTableBody = document.querySelector("#visitTable tbody");
+                visits.forEach(visit => {
                     const row = document.createElement("tr");
                     row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${new Date(visit.visitDate).toLocaleString()}</td>
-                        <td>${visit.endTime ? new Date(visit.endTime).toLocaleString() : 'N/A'}</td>
-                        <td>${visit.duration || 'N/A'}</td>
-                        <td>${visit.clickCount || 0}</td>
-                        <td>${visit.contactClicks || 0}</td>
-                        <td>${visit.whatsappClicks || 0}</td>
-                        <td>${visit.viewMoreClicks || 0}</td>
-                        <td>${visit.text || 'N/A'}</td>
+                        <td>${new Date(visit.startTime).toLocaleString()}</td>
+                        <td>${new Date(visit.endTime).toLocaleString()}</td>
+                        <td>${visit.duration}</td>
+                        <td>${visit.clickCount}</td>
+                        <td>${visit.contactClicks}</td>
+                        <td>${visit.whatsappClicks}</td>
+                        <td>${visit.viewMoreClicks}</td>
+                        <td>${visit.textSelections}</td>
                     `;
-                    visitTable.appendChild(row);
+                    visitTableBody.appendChild(row);
                 });
             })
-            .catch(error => console.error("Error fetching visit data:", error));
+            .catch(error => console.error("Error fetching visits:", error));
+
+        // Fetch text selection data and populate the table
+        fetch("http://localhost:3000/api/get-text-selections")
+            .then(response => response.json())
+            .then(textSelections => {
+                const textSelectionTableBody = document.querySelector("#textSelectionTable tbody");
+                textSelections.forEach(selection => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${selection.selectedText}</td>
+                        <td>${new Date(selection.timestamp).toLocaleString()}</td>
+                    `;
+                    textSelectionTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error("Error fetching text selections:", error));
     </script>
 </body>
 </html>
