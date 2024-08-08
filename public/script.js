@@ -6,6 +6,7 @@ let textSelections = 0;
 
 const startTime = new Date();
 
+// Track button clicks
 document.getElementById("contactButton").addEventListener("click", () => {
     contactClicks++;
     clickCount++;
@@ -21,46 +22,51 @@ document.getElementById("viewMoreButton").addEventListener("click", () => {
     clickCount++;
 });
 
+// Track text selections
 document.addEventListener("mouseup", () => {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText) {
         textSelections++;
-        fetch("https://usertracking-test.up.railway.app/api/save-text-selection", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ selectedText })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Text selection saved:", data))
-        .catch(error => console.error("Error saving text selection:", error));
+        sendTextSelection(selectedText);
     }
 });
 
-window.addEventListener("beforeunload", () => {
-    const endTime = new Date();
-    const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
-
-    const visitData = {
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        textSelections
-    };
-
-    fetch("https://usertracking-test.up.railway.app/api/save-visit", {
+// Function to send text selection data to the server
+function sendTextSelection(text) {
+    fetch("/api/save-text-selection", { // Updated endpoint path
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify(visitData)
+        body: JSON.stringify({ selectedText: text })
     })
     .then(response => response.json())
-    .then(data => console.log('Success:', data))
+    .then(data => console.log("Text selection saved:", data))
+    .catch(error => console.error("Error saving text selection:", error));
+}
+
+// Track page leave event
+window.addEventListener("beforeunload", () => {
+    const endTime = new Date();
+    const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
+
+    fetch("/api/save-visit", { // Updated endpoint path
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            startTime,
+            endTime,
+            duration,
+            clickCount,
+            contactClicks,
+            whatsappClicks,
+            viewMoreClicks,
+            textSelections // Include textSelections
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log("Visit data saved:", data))
     .catch(error => console.error("Error saving visit data:", error));
 });
