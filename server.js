@@ -40,14 +40,12 @@ const visitSchema = new mongoose.Schema({
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
-
 const textSelectionSchema = new mongoose.Schema({
     selectedText: { type: String, required: true },
     timestamp: { type: Date, default: Date.now }
 });
 
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
-
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
     console.log("Received visit data:", req.body);   
