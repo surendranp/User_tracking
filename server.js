@@ -14,7 +14,9 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    maxPoolSize: 1000 // You can adjust this as needed
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 1000
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
