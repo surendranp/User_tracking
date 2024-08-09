@@ -13,24 +13,16 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB";
-
-mongoose.connect(mongoUri, {
-    useNewUrlParser: true, // Ensure this is included if you're using a version <4.0
-    useUnifiedTopology: true, // This is also relevant for versions <4.0
-    maxPoolSize: 1000, // Optional: Adjust the connection pool size as needed
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
+    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
-    console.error("Connection error:", err.message);
-    process.exit(1); // Exit the process with failure code
+    console.error("Connection error:", err);
 });
 
 const db = mongoose.connection;
-db.on("error", (error) => {
-    console.error("Connection error:", error.message);
-});
-
+db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
     console.log("MongoDB connection is open");
 });
