@@ -1,9 +1,10 @@
+// script.js
+
 let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
 let viewMoreClicks = 0;
-let textSelections = 0;
-let selectedTexts = [];
+let textSelections = []; // Changed to Array
 
 const startTime = new Date();
 
@@ -27,10 +28,9 @@ document.getElementById("viewMoreButton").addEventListener("click", () => {
 document.addEventListener("mouseup", () => {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText) {
-        textSelections++;
-        selectedTexts.push(selectedText); // Store selected text
+        textSelections.push(selectedText); // Store selected text
         // Send selected text to the server
-        fetch("https://usertracking-test.up.railway.app//api/save-text-selection", {
+        fetch("/api/save-text-selection", { // Ensure URL is correct
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -49,7 +49,7 @@ window.addEventListener("beforeunload", () => {
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
     // Save visit data to the server
-    fetch("https://usertracking-test.up.railway.app//api/save-visit", {
+    fetch("/api/save-visit", { // Ensure URL is correct
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -62,7 +62,7 @@ window.addEventListener("beforeunload", () => {
             contactClicks,
             whatsappClicks,
             viewMoreClicks,
-            textSelections
+            textSelections // Send as Array
         })
     })
     .then(response => response.json())

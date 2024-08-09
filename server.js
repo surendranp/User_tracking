@@ -1,3 +1,5 @@
+// server.js
+
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -36,7 +38,7 @@ const visitSchema = new mongoose.Schema({
     contactClicks: Number,
     whatsappClicks: Number,
     viewMoreClicks: Number,
-    textSelections: Number // Added textSelections field
+    textSelections: [String] // Changed to Array of Strings
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -51,6 +53,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
+    console.log("Received visit data:", req.body); // Log received data
 
     const newVisit = new Visit({
         startTime,
@@ -75,6 +78,7 @@ app.post("/api/save-visit", async (req, res) => {
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
     const { selectedText } = req.body;
+    console.log("Received text selection:", req.body); // Log received data
 
     const newTextSelection = new TextSelection({
         selectedText
@@ -92,7 +96,7 @@ app.post("/api/save-text-selection", async (req, res) => {
 // API Endpoint to Get Visit Data for Dashboard
 app.get("/api/get-visits", async (req, res) => {
     try {
-        const visits = await Visit.find({});
+        const visits = await Visit.find({}).sort({ startTime: -1 }); // Sort by startTime in descending order
         res.status(200).json(visits);
     } catch (err) {
         console.error("Error retrieving visits:", err);
@@ -103,7 +107,7 @@ app.get("/api/get-visits", async (req, res) => {
 // API Endpoint to Get Text Selection Data for Dashboard
 app.get("/api/get-text-selections", async (req, res) => {
     try {
-        const textSelections = await TextSelection.find({});
+        const textSelections = await TextSelection.find({}).sort({ timestamp: -1 }); // Sort by timestamp in descending order
         res.status(200).json(textSelections);
     } catch (err) {
         console.error("Error retrieving text selections:", err);
