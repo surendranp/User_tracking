@@ -29,20 +29,20 @@ db.once("open", () => {
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    startTime: { type: Date, required: true },
-    endTime: { type: Date, required: true },
-    duration: { type: Number, required: true },
-    clickCount: { type: Number, required: true },
-    contactClicks: { type: Number, required: true },
-    whatsappClicks: { type: Number, required: true },
-    viewMoreClicks: { type: Number, required: true },
-    textSelections: { type: Number, required: true }
+    startTime: Date,
+    endTime: Date,
+    duration: Number,
+    clickCount: Number,
+    contactClicks: Number,
+    whatsappClicks: Number,
+    viewMoreClicks: Number,
+    textSelections: Number // Added textSelections field
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
-    selectedText: { type: String, required: true },
+    selectedText: String,
     timestamp: { type: Date, default: Date.now }
 });
 
@@ -50,14 +50,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body);   
-
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
-
-    if (!startTime || !endTime || duration === undefined || clickCount === undefined || contactClicks === undefined || whatsappClicks === undefined || viewMoreClicks === undefined || textSelections === undefined) {
-        console.error("Missing data fields:", req.body);
-        return res.status(400).json({ error: "Missing data fields" });
-    }
 
     const newVisit = new Visit({
         startTime,
@@ -67,12 +60,11 @@ app.post("/api/save-visit", async (req, res) => {
         contactClicks,
         whatsappClicks,
         viewMoreClicks,
-        textSelections
+        textSelections // Include textSelections field
     });
 
     try {
-        const savedVisit = await newVisit.save();
-        console.log("Visit data saved successfully:", savedVisit);
+        await newVisit.save();
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
@@ -82,22 +74,14 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body);
-
     const { selectedText } = req.body;
-
-    if (!selectedText) {
-        console.error("Missing text selection field:", req.body);
-        return res.status(400).json({ error: "Missing text selection field" });
-    }
 
     const newTextSelection = new TextSelection({
         selectedText
     });
 
     try {
-        const savedTextSelection = await newTextSelection.save();
-        console.log("Text selection saved successfully:", savedTextSelection);
+        await newTextSelection.save();
         res.status(200).json({ message: "Text selection saved successfully" });
     } catch (err) {
         console.error("Error saving text selection:", err);
@@ -109,11 +93,10 @@ app.post("/api/save-text-selection", async (req, res) => {
 app.get("/api/get-visits", async (req, res) => {
     try {
         const visits = await Visit.find({});
-        console.log("Retrieved visits:", visits);    
         res.status(200).json(visits);
     } catch (err) {
         console.error("Error retrieving visits:", err);
-        res.status(500).json({ error: "Failed to retrieve visit data" }); 
+        res.status(500).json({ error: "Failed to retrieve visit data" });
     }
 });
 
@@ -121,7 +104,6 @@ app.get("/api/get-visits", async (req, res) => {
 app.get("/api/get-text-selections", async (req, res) => {
     try {
         const textSelections = await TextSelection.find({});
-        console.log("Retrieved text selections:", textSelections);
         res.status(200).json(textSelections);
     } catch (err) {
         console.error("Error retrieving text selections:", err);
