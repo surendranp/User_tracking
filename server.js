@@ -17,8 +17,8 @@ app.use(express.static('public'));
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   maxPoolSize: 1000, // Adjust the connection pool size if needed
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
 })
   .then(() => {
     console.log("Connected to MongoDB");
