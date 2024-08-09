@@ -19,6 +19,14 @@
         .button {
             margin: 10px 0;
         }
+        .butn_align{
+            width: 50%;
+            /* height: 50em; */
+            /* background: #000; */
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -28,10 +36,11 @@
         Here is some sample text. Feel free to select any part of it to test the tracking feature.
         You can also click the buttons below to track button clicks.
     </p>
+    <section class="butn_align">
     <button id="contactButton" class="btn btn-primary button">Contact</button>
     <button id="whatsappButton" class="btn btn-success button">WhatsApp</button>
     <button id="viewMoreButton" class="btn btn-info button">View More</button>
-
+     </section>
     <script src="script.js"></script>
 </body>
 </html>
