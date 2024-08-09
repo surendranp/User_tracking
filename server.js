@@ -109,11 +109,11 @@ app.post("/api/save-text-selection", async (req, res) => {
 app.get("/api/get-visits", async (req, res) => {
     try {
         const visits = await Visit.find({});
-        console.log("Retrieved visits:", visits);    
+        console.log("Retrieved visits:", visits);
         res.status(200).json(visits);
     } catch (err) {
         console.error("Error retrieving visits:", err);
-        res.status(500).json({ error: "Failed to retrieve visit data" }); 
+        res.status(500).json({ error: "Failed to retrieve visit data" });
     }
 });
 
