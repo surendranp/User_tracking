@@ -14,9 +14,7 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 1000
+    maxPoolSize: 1000 // You can adjust this as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
@@ -51,7 +49,7 @@ const textSelectionSchema = new mongoose.Schema({
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
-app.post("/api/save-visit", async (req, res) => {
+app.post("https://usertracking-test.up.railway.app/api/save-visit", async (req, res) => {
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections } = req.body;
 
     const newVisit = new Visit({
@@ -76,7 +74,7 @@ app.post("/api/save-visit", async (req, res) => {
 });
 
 // API Endpoint to Save Text Selection Data
-app.post("/api/save-text-selection", async (req, res) => {
+app.post("https://usertracking-test.up.railway.app/api/save-text-selection", async (req, res) => {
     const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
