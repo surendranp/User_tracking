@@ -2,8 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const cors = require("cors");
-
+const cors = require("cors");https://usertracking-test.up.railway.app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -14,9 +13,7 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 1000
+    maxPoolSize: 1000 // You can adjust this as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
@@ -94,7 +91,7 @@ app.post("https://usertracking-test.up.railway.app/api/save-text-selection", asy
 });
 
 // API Endpoint to Get Visit Data for Dashboard
-app.get("https://usertracking-test.up.railway.app/api/get-visits", async (req, res) => {
+app.get("https://usertracking-test.up.railway.app/api/get-visits", async (_req, res) => {
     try {
         const visits = await Visit.find({});
         res.status(200).json(visits);
@@ -105,7 +102,7 @@ app.get("https://usertracking-test.up.railway.app/api/get-visits", async (req, r
 });
 
 // API Endpoint to Get Text Selection Data for Dashboard
-app.get("https://usertracking-test.up.railway.app/api/get-text-selections", async (req, res) => {
+app.get("https://usertracking-test.up.railway.app/api/get-text-selections", async (_req, res) => {
     try {
         const textSelections = await TextSelection.find({});
         res.status(200).json(textSelections);
