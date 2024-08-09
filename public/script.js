@@ -1,10 +1,9 @@
-// script.js
-
 let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
 let viewMoreClicks = 0;
-let textSelections = []; // Changed to Array
+let textSelections = 0;
+let selectedTexts = [];
 
 const startTime = new Date();
 
@@ -28,9 +27,10 @@ document.getElementById("viewMoreButton").addEventListener("click", () => {
 document.addEventListener("mouseup", () => {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText) {
-        textSelections.push(selectedText); // Store selected text
+        textSelections++;
+        selectedTexts.push(selectedText); // Store selected text
         // Send selected text to the server
-        fetch("/api/save-text-selection", { // Ensure URL is correct
+        fetch("/api/save-text-selection", { // Update with relative URL for your environment
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -49,20 +49,20 @@ window.addEventListener("beforeunload", () => {
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
     // Save visit data to the server
-    fetch("/api/save-visit", { // Ensure URL is correct
+    fetch("/api/save-visit", { // Update with relative URL for your environment
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            startTime,
-            endTime,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
             duration,
             clickCount,
             contactClicks,
             whatsappClicks,
             viewMoreClicks,
-            textSelections // Send as Array
+            textSelections
         })
     })
     .then(response => response.json())
