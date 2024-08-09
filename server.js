@@ -94,7 +94,7 @@ app.post("/api/save-text-selection", async (req, res) => {
 });
 
 // API Endpoint to Get Visit Data for Dashboard
-app.get("/api/get-visits", async (req, res) => {
+app.get("https://usertracking-test.up.railway.app/api/get-visits", async (req, res) => {
     try {
         const visits = await Visit.find({});
         res.status(200).json(visits);
@@ -105,7 +105,7 @@ app.get("/api/get-visits", async (req, res) => {
 });
 
 // API Endpoint to Get Text Selection Data for Dashboard
-app.get("/api/get-text-selections", async (req, res) => {
+app.get("https://usertracking-test.up.railway.app/api/get-text-selections", async (req, res) => {
     try {
         const textSelections = await TextSelection.find({});
         res.status(200).json(textSelections);
