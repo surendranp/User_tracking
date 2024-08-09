@@ -30,7 +30,7 @@ document.addEventListener("mouseup", () => {
         textSelections++;
         selectedTexts.push(selectedText); // Store selected text
         // Send selected text to the server
-        fetch("/api/save-text-selection", { // Update with relative URL for your environment
+        fetch("https://usertracking-test.up.railway.app/api/save-text-selection", { // Ensure this path is correct for your hosting environment
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -49,7 +49,7 @@ window.addEventListener("beforeunload", () => {
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
     // Save visit data to the server
-    fetch("/api/save-visit", { // Update with relative URL for your environment
+    fetch("https://usertracking-test.up.railway.app/api/save-visit", { // Ensure this path is correct for your hosting environment
         method: "POST",
         headers: {
             "Content-Type": "application/json"

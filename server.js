@@ -14,7 +14,9 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 1000
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
@@ -65,6 +67,7 @@ app.post("/api/save-visit", async (req, res) => {
 
     try {
         await newVisit.save();
+        console.log("Visit data saved successfully");
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
@@ -82,6 +85,7 @@ app.post("/api/save-text-selection", async (req, res) => {
 
     try {
         await newTextSelection.save();
+        console.log("Text selection saved successfully");
         res.status(200).json({ message: "Text selection saved successfully" });
     } catch (err) {
         console.error("Error saving text selection:", err);
@@ -90,7 +94,7 @@ app.post("/api/save-text-selection", async (req, res) => {
 });
 
 // API Endpoint to Get Visit Data for Dashboard
-app.get("https://usertracking-test.up.railway.app//api/get-visits", async (req, res) => {
+app.get("/api/get-visits", async (req, res) => {
     try {
         const visits = await Visit.find({});
         res.status(200).json(visits);
@@ -101,7 +105,7 @@ app.get("https://usertracking-test.up.railway.app//api/get-visits", async (req, 
 });
 
 // API Endpoint to Get Text Selection Data for Dashboard
-app.get("https://usertracking-test.up.railway.app//api/get-text-selections", async (req, res) => {
+app.get("/api/get-text-selections", async (req, res) => {
     try {
         const textSelections = await TextSelection.find({});
         res.status(200).json(textSelections);
