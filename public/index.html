@@ -3,27 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Website</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>User Tracking Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar {
+            width: 100%;
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .logo img {
+            height: 40px;
+            float: left;
+            margin-right: 10px;
+        }
+
+        .butn_align {
+            width: 50%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .button {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
-    <nav class="navbar">
+    <div class="navbar">
         <div class="logo">
             <img src="path_to_logo/logo.png" alt="Logo">
         </div>
-        <ul class="nav-links">
-            <li><a href="#" id="homeButton">Home</a></li>
-            <li><a href="#" id="aboutButton">About</a></li>
-            <li><a href="#" id="contactButton">Contact</a></li>
-        </ul>
-    </nav>
-
-    <div class="content">
-        <h1>Welcome to our web site</h1>
-        <p>this only for a text selection testing purpose</p>
-        <!-- Content for each page will be loaded here -->
+        <a href="#" id="homeButton">Home</a>
+        <a href="#" id="aboutButton">About</a>
+        <a href="#" id="contactNavButton">Contact</a>
     </div>
+
+    <h1>Welcome to Our Website</h1>
+    <p>Click the buttons below to see tracking in action.</p>
+    <p>
+        Here is some sample text. Feel free to select any part of it to test the tracking feature.
+        You can also click the buttons below to track button clicks.
+    </p>
+    <section class="butn_align">
+        <button id="contactButton" class="btn btn-primary button">Contact</button>
+        <button id="whatsappButton" class="btn btn-success button">WhatsApp</button>
+        <button id="viewMoreButton" class="btn btn-info button">View More</button>
+    </section>
 
     <script src="script.js"></script>
 </body>

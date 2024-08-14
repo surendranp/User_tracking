@@ -9,19 +9,34 @@ const startTime = new Date();
 
 // Track navbar button clicks
 document.getElementById("homeButton").addEventListener("click", () => {
-    clickCount++;
     trackNavbarClick("Home");
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
-    clickCount++;
     trackNavbarClick("About");
 });
 
+document.getElementById("contactNavButton").addEventListener("click", () => {
+    trackNavbarClick("Contact");
+});
+
+// Track other button clicks
 document.getElementById("contactButton").addEventListener("click", () => {
     contactClicks++;
     clickCount++;
-    trackNavbarClick("Contact");
+    trackButtonClick("Contact");
+});
+
+document.getElementById("whatsappButton").addEventListener("click", () => {
+    whatsappClicks++;
+    clickCount++;
+    trackButtonClick("WhatsApp");
+});
+
+document.getElementById("viewMoreButton").addEventListener("click", () => {
+    viewMoreClicks++;
+    clickCount++;
+    trackButtonClick("View More");
 });
 
 // Track text selections
@@ -29,8 +44,7 @@ document.addEventListener("mouseup", () => {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText) {
         textSelections++;
-        selectedTexts.push(selectedText); // Store selected text
-        // Send selected text to the server
+        selectedTexts.push(selectedText);
         fetch("/api/save-text-selection", {
             method: "POST",
             headers: {
@@ -47,7 +61,7 @@ document.addEventListener("mouseup", () => {
 // Track page leave event.
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
-    const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
+    const duration = Math.round((endTime - startTime) / 1000);
 
     // Save visit data to the server
     fetch("/api/save-visit", {
@@ -67,12 +81,29 @@ window.addEventListener("beforeunload", () => {
         })
     })
     .then(response => response.json())
-    .then(data => console.log('Success:', data))
+    .then(data => console.log('Visit data saved:', data))
     .catch(error => console.error("Error saving visit data:", error));
 });
 
 // Function to track navbar clicks
 function trackNavbarClick(buttonName) {
+    fetch("/api/save-visit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            buttonName,
+            timestamp: new Date()
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log(`${buttonName} button click saved:`, data))
+    .catch(error => console.error(`Error saving ${buttonName} button click:`, error));
+}
+
+// Function to track other button clicks
+function trackButtonClick(buttonName) {
     fetch("/api/save-visit", {
         method: "POST",
         headers: {
