@@ -16,17 +16,11 @@ app.use(express.static('public'));
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
+    maxPoolSize: 1000
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
     console.error("Connection error:", err);
-});
-
-const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-    console.log("MongoDB connection is open");
 });
 
 // Define Schemas and Models
@@ -41,7 +35,8 @@ const visitSchema = new mongoose.Schema({
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
-    textSelections: Number
+    textSelections: Number,
+    selectedTexts: [String] // Store selected texts as an array of strings
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -55,7 +50,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections } = req.body;
+    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections, selectedTexts } = req.body;
 
     const newVisit = new Visit({
         startTime,
@@ -68,7 +63,8 @@ app.post("/api/save-visit", async (req, res) => {
         homeClicks,
         aboutClicks,
         contactNavClicks,
-        textSelections
+        textSelections,
+        selectedTexts // Include selectedTexts field
     });
 
     try {
