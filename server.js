@@ -7,18 +7,29 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    maxPoolSize: 1000
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
     console.error("Connection error:", err);
 });
 
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+    console.log("MongoDB connection is open");
+});
+
+// Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     startTime: Date,
     endTime: Date,
@@ -27,12 +38,10 @@ const visitSchema = new mongoose.Schema({
     contactClicks: Number,
     whatsappClicks: Number,
     viewMoreClicks: Number,
-    homeClicks:Number,
-    aboutClicks:Number,
-    contactNavClicks:Number,
+    homeClicks: Number,
+    aboutClicks: Number,
+    contactNavClicks: Number,
     textSelections: Number,
-    buttonName: String,
-    timestamp: { type: Date, default: Date.now },
     sessionId: String // Added sessionId field
 });
 
@@ -40,13 +49,15 @@ const Visit = mongoose.model("Visit", visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
     selectedText: String,
-    timestamp: { type: Date, default: Date.now }
+    timestamp: { type: Date, default: Date.now },
+    sessionId: String // Added sessionId field
 });
 
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
+// API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections, buttonName, timestamp, sessionId } = req.body;
+    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections, sessionId, buttonName, timestamp } = req.body;
 
     const newVisit = new Visit({
         startTime,
@@ -56,12 +67,10 @@ app.post("/api/save-visit", async (req, res) => {
         contactClicks,
         whatsappClicks,
         viewMoreClicks,
-         homeClicks,
-         aboutClicks,
-         contactNavClicks,
+        homeClicks,
+        aboutClicks,
+        contactNavClicks,
         textSelections,
-        buttonName,
-        timestamp,
         sessionId
     });
 
@@ -74,11 +83,13 @@ app.post("/api/save-visit", async (req, res) => {
     }
 });
 
+// API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    const { selectedText } = req.body;
+    const { selectedText, sessionId } = req.body;
 
     const newTextSelection = new TextSelection({
-        selectedText
+        selectedText,
+        sessionId
     });
 
     try {
@@ -90,6 +101,7 @@ app.post("/api/save-text-selection", async (req, res) => {
     }
 });
 
+// API Endpoint to Get Visit Data for Dashboard
 app.get("/api/get-visits", async (req, res) => {
     try {
         const visits = await Visit.find({});
@@ -100,6 +112,7 @@ app.get("/api/get-visits", async (req, res) => {
     }
 });
 
+// API Endpoint to Get Text Selection Data for Dashboard
 app.get("/api/get-text-selections", async (req, res) => {
     try {
         const textSelections = await TextSelection.find({});
@@ -110,7 +123,7 @@ app.get("/api/get-text-selections", async (req, res) => {
     }
 });
 
+// Start the Server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
- 

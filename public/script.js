@@ -12,38 +12,38 @@ const startTime = new Date();
 const sessionId = Math.random().toString(36).substr(2, 9); // Unique session ID for tracking
 
 // Track navbar button clicks
-document.getElementById("homeButton").addEventListener("click", () => {
+document.getElementById("homeButton")?.addEventListener("click", () => {
     trackNavbarClick("Home");
     homeClicks++;
     clickCount++;
 });
 
-document.getElementById("aboutButton").addEventListener("click", () => {
+document.getElementById("aboutButton")?.addEventListener("click", () => {
     trackNavbarClick("About");
     aboutClicks++;
     clickCount++;
 });
 
-document.getElementById("contactNavButton").addEventListener("click", () => {
+document.getElementById("contactNavButton")?.addEventListener("click", () => {
     trackNavbarClick("Contact");
     contactNavClicks++;
     clickCount++;
 });
 
 // Track other button clicks
-document.getElementById("contactButton").addEventListener("click", () => {
+document.getElementById("contactButton")?.addEventListener("click", () => {
     contactClicks++;
     clickCount++;
     trackButtonClick("Contact");
 });
 
-document.getElementById("whatsappButton").addEventListener("click", () => {
+document.getElementById("whatsappButton")?.addEventListener("click", () => {
     whatsappClicks++;
     clickCount++;
     trackButtonClick("WhatsApp");
 });
 
-document.getElementById("viewMoreButton").addEventListener("click", () => {
+document.getElementById("viewMoreButton")?.addEventListener("click", () => {
     viewMoreClicks++;
     clickCount++;
     trackButtonClick("View More");
@@ -60,7 +60,7 @@ document.addEventListener("mouseup", () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ selectedText })
+            body: JSON.stringify({ selectedText, sessionId })
         })
         .then(response => response.json())
         .then(data => console.log("Text selection saved:", data))
