@@ -1,116 +1,59 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-
+const express = require('express');
+const path = require('path');
+const mongoose = require('mongoose');
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static('public'));
+require('dotenv').config();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 1000
-}).then(() => {
-    console.log("Connected to MongoDB");
-}).catch((err) => {
-    console.error("Connection error:", err);
-});
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => console.log('MongoDB connected'))
+  .catch(err => console.log(err));
 
-// Define Schemas and Models
+// Define a schema and model for tracking user interactions
 const visitSchema = new mongoose.Schema({
-    startTime: Date,
-    endTime: Date,
-    duration: Number,
-    clickCount: Number,
-    contactClicks: Number,
-    whatsappClicks: Number,
-    viewMoreClicks: Number,
-    homeClicks: Number,
-    aboutClicks: Number,
-    contactNavClicks: Number,
-    textSelections: Number,
-    selectedTexts: [String] // Store selected texts as an array of strings
+  path: String,
+  timestamp: { type: Date, default: Date.now }
 });
-
-const Visit = mongoose.model("Visit", visitSchema);
+const Visit = mongoose.model('Visit', visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
-    selectedText: String,
-    timestamp: { type: Date, default: Date.now }
+  content: String,
+  timestamp: { type: Date, default: Date.now }
+});
+const TextSelection = mongoose.model('TextSelection', textSelectionSchema);
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+
+// Serve the HTML file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
-
-// API Endpoint to Save Visit Data
-app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Debugging line
-
-    const {
-        startTime,
-        endTime,
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections,
-        selectedTexts
-    } = req.body;
-
-    const newVisit = new Visit({
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections,
-        selectedTexts
-    });
-
-    try {
-        await newVisit.save();
-        res.status(200).json({ message: "Visit data saved successfully" });
-    } catch (err) {
-        console.error("Error saving visit:", err);
-        res.status(500).json({ error: "Failed to save visit data" });
-    }
+// Track page visits
+app.post('/trackVisit', async (req, res) => {
+  try {
+    const { path } = req.body;
+    await new Visit({ path }).save();
+    res.status(200).send('Visit tracked');
+  } catch (error) {
+    res.status(500).send('Error tracking visit');
+  }
 });
 
-// API Endpoint to Save Text Selection Data
-app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body); // Debugging line
-
-    const { selectedText } = req.body;
-
-    const newTextSelection = new TextSelection({
-        selectedText
-    });
-
-    try {
-        await newTextSelection.save();
-        res.status(200).json({ message: "Text selection saved successfully" });
-    } catch (err) {
-        console.error("Error saving text selection:", err);
-        res.status(500).json({ error: "Failed to save text selection data" });
-    }
+// Track text selections
+app.post('/trackTextSelection', async (req, res) => {
+  try {
+    const { content } = req.body;
+    await new TextSelection({ content }).save();
+    res.status(200).send('Text selection tracked');
+  } catch (error) {
+    res.status(500).send('Error tracking text selection');
+  }
 });
 
-// Start the Server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -771,6 +771,7 @@
 		 
 	   </div>
 	<!--js -->
+    <script src="script.js"></script>
        <script src="assets/js/jquery.min.js"></script>
       <script src="assets/js/jquery.shuffle.min.js"></script>
       <script src="assets/js/custom.js"></script>
@@ -782,8 +783,58 @@
       <script src="assets/js/code.js"></script>
 	  <script src="assets/js/jquery.barfiller.js"></script>
 	  <script src='../www.google.com/recaptcha/api.js'></script> 
-     <script src="script.js"></script>
+     
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+  const trackVisit = async (path) => {
+    try {
+      await fetch('/trackVisit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path }),
+      });
+    } catch (error) {
+      console.error('Error tracking visit:', error);
+    }
+  };
 
+  const trackTextSelection = async (content) => {
+    try {
+      await fetch('/trackTextSelection', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      });
+    } catch (error) {
+      console.error('Error tracking text selection:', error);
+    }
+  };
+
+  // Track page visit
+  trackVisit(window.location.pathname);
+
+  // Track text selection
+  document.addEventListener('mouseup', () => {
+    const selection = window.getSelection();
+    if (selection.toString().trim() !== '') {
+      trackTextSelection(selection.toString());
+    }
+  });
+
+  // Track navbar clicks
+  document.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      trackVisit(link.getAttribute('href'));
+    });
+  });
+});
+
+
+</script>
      <!-- Google API For Recaptcha  -->
 <script>
 function submitUserForm() {
