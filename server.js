@@ -1,59 +1,35 @@
 const express = require('express');
-const path = require('path');
 const mongoose = require('mongoose');
+const path = require('path');
 const app = express();
-require('dotenv').config();
+const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-  .catch(err => console.log(err));
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/yourdbname';
+mongoose.connect(mongoURI, {
+  // Options removed
+})
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-// Define a schema and model for tracking user interactions
-const visitSchema = new mongoose.Schema({
-  path: String,
-  timestamp: { type: Date, default: Date.now }
-});
-const Visit = mongoose.model('Visit', visitSchema);
-
-const textSelectionSchema = new mongoose.Schema({
-  content: String,
-  timestamp: { type: Date, default: Date.now }
-});
-const TextSelection = mongoose.model('TextSelection', textSelectionSchema);
-
+// Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
 
-// Serve the HTML file
+// Route for the index page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Track page visits
-app.post('/trackVisit', async (req, res) => {
-  try {
-    const { path } = req.body;
-    await new Visit({ path }).save();
-    res.status(200).send('Visit tracked');
-  } catch (error) {
-    res.status(500).send('Error tracking visit');
-  }
+// Other routes
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
 
-// Track text selections
-app.post('/trackTextSelection', async (req, res) => {
-  try {
-    const { content } = req.body;
-    await new TextSelection({ content }).save();
-    res.status(200).send('Text selection tracked');
-  } catch (error) {
-    res.status(500).send('Error tracking text selection');
-  }
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'contact.html'));
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
