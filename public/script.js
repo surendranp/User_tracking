@@ -1,16 +1,19 @@
 let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
+
+// let homeClicks = 0;
+// let aboutClicks = 0;
+// let paverblockClicks = 0;
+// let hollowblockClicks = 0;
+// let flyashblockClicks = 0;
+// let qualitycontrolClicks = 0;
+// let careerclicks = 0; 
+// let gmailClicks = 0;
+// let phoneClicks = 0;
+
 // let viewMoreClicks = 0;
-let homeClicks = 0;
-let aboutClicks = 0;
-let paverblockClicks = 0;
-let hollowblockClicks = 0;
-let flyashblockClicks = 0;
-let qualitycontrolClicks = 0;
-let careerclicks = 0; 
-let gmailClicks = 0;
-let phoneClicks = 0;
+
 let textSelections = 0;
 let selectedTexts = [];
 
@@ -33,55 +36,55 @@ document.getElementById("whatsappButton").addEventListener("click", () => {
 // });
 
 // EnquiryButton 
-document.getElementById("enquiryButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("enquiryButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // MailButton
-document.getElementById("mailButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("mailButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // phoneButton
-document.getElementById("phoneButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("phoneButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // HomeButton
-document.getElementById("homeButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("homeButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // AboutButton
-document.getElementById("aboutButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("aboutButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // PaverblockButton
-document.getElementById("PaverblockButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("PaverblockButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // HollowblockButton
-document.getElementById("hollowblockButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("hollowblockButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // FlyashblockButton
-document.getElementById("flyashblockButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("flyashblockButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // QualitycontrolButton
-document.getElementById("qualitycontrolButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("qualitycontrolButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 // CareerButton
-document.getElementById("careerButton").addEventListener("click", () => {
-  viewMoreClicks++;
-  clickCount++;
-});
+// document.getElementById("careerButton").addEventListener("click", () => {
+//   viewMoreClicks++;
+//   clickCount++;
+// });
 
 
 
@@ -130,15 +133,15 @@ window.addEventListener("beforeunload", () => {
       contactClicks,
       whatsappClicks,
       
-homeClicks,
-aboutClicks,
-paverblockClicks,
-hollowblockClicks,
-flyashblockClicks,
-qualitycontrolClicks,
-careerclicks,
-gmailClicks,
-phoneClicks,
+// homeClicks,
+// aboutClicks,
+// paverblockClicks,
+// hollowblockClicks,
+// flyashblockClicks,
+// qualitycontrolClicks,
+// careerclicks,
+// gmailClicks,
+// phoneClicks,
 
       // viewMoreClicks,
       textSelections,
