@@ -6,6 +6,7 @@ let textSelections = 0;
 let selectedTexts = [];
 
 const startTime = new Date();
+const sessionId = Math.random().toString(36).substr(2, 9); // Unique session ID for tracking
 
 // Track navbar button clicks
 document.getElementById("homeButton").addEventListener("click", () => {
@@ -61,7 +62,7 @@ document.addEventListener("mouseup", () => {
 // Track page leave event.
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
-    const duration = Math.round((endTime - startTime) / 1000);
+    const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
     // Save visit data to the server
     fetch("/api/save-visit", {
@@ -77,7 +78,8 @@ window.addEventListener("beforeunload", () => {
             contactClicks,
             whatsappClicks,
             viewMoreClicks,
-            textSelections
+            textSelections,
+            sessionId
         })
     })
     .then(response => response.json())
@@ -94,7 +96,8 @@ function trackNavbarClick(buttonName) {
         },
         body: JSON.stringify({
             buttonName,
-            timestamp: new Date()
+            timestamp: new Date(),
+            sessionId
         })
     })
     .then(response => response.json())
@@ -111,7 +114,8 @@ function trackButtonClick(buttonName) {
         },
         body: JSON.stringify({
             buttonName,
-            timestamp: new Date()
+            timestamp: new Date(),
+            sessionId
         })
     })
     .then(response => response.json())

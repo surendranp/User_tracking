@@ -29,7 +29,8 @@ const visitSchema = new mongoose.Schema({
     viewMoreClicks: Number,
     textSelections: Number,
     buttonName: String,
-    timestamp: { type: Date, default: Date.now }
+    timestamp: { type: Date, default: Date.now },
+    sessionId: String // Added sessionId field
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -42,7 +43,7 @@ const textSelectionSchema = new mongoose.Schema({
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 app.post("/api/save-visit", async (req, res) => {
-    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections, buttonName, timestamp } = req.body;
+    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections, buttonName, timestamp, sessionId } = req.body;
 
     const newVisit = new Visit({
         startTime,
@@ -54,7 +55,8 @@ app.post("/api/save-visit", async (req, res) => {
         viewMoreClicks,
         textSelections,
         buttonName,
-        timestamp
+        timestamp,
+        sessionId
     });
 
     try {
