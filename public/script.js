@@ -14,16 +14,19 @@ const startTime = new Date();
 document.getElementById("homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
+    trackButtonClick("Home");
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
     aboutClicks++;
     clickCount++;
+    trackButtonClick("About");
 });
 
 document.getElementById("contactNavButton").addEventListener("click", () => {
     contactNavClicks++;
     clickCount++;
+    trackButtonClick("ContactNav");
 });
 
 // Track other button clicks
