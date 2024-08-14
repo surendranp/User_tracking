@@ -74,7 +74,7 @@ window.addEventListener("beforeunload", () => {
             aboutClicks,
             contactNavClicks,
             textSelections,
-            selectedTexts // Include selected texts in the visit data
+            selectedTexts
         })
     })
     .then(response => response.json())

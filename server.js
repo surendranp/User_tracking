@@ -50,6 +50,8 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
+    console.log("Received visit data:", req.body); // Debugging line
+
     const {
         startTime,
         endTime,
@@ -91,6 +93,8 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
+    console.log("Received text selection data:", req.body); // Debugging line
+
     const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
@@ -103,28 +107,6 @@ app.post("/api/save-text-selection", async (req, res) => {
     } catch (err) {
         console.error("Error saving text selection:", err);
         res.status(500).json({ error: "Failed to save text selection data" });
-    }
-});
-
-// API Endpoint to Get Visit Data for Dashboard
-app.get("/api/get-visits", async (req, res) => {
-    try {
-        const visits = await Visit.find({});
-        res.status(200).json(visits);
-    } catch (err) {
-        console.error("Error retrieving visits:", err);
-        res.status(500).json({ error: "Failed to retrieve visit data" });
-    }
-});
-
-// API Endpoint to Get Text Selection Data for Dashboard
-app.get("/api/get-text-selections", async (req, res) => {
-    try {
-        const textSelections = await TextSelection.find({});
-        res.status(200).json(textSelections);
-    } catch (err) {
-        console.error("Error retrieving text selections:", err);
-        res.status(500).json({ error: "Failed to retrieve text selection data" });
     }
 });
 
