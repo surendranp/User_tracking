@@ -43,9 +43,14 @@ app.get('/', (req, res) => {
 // Connect to MongoDB and start the server
 const mongoUri = process.env.MONGO_URI;
 
+if (!mongoUri) {
+    console.error('MongoDB connection string is missing. Please set MONGO_URI environment variable.');
+    process.exit(1); // Exit the process with an error code
+}
+
 mongoose.connect(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
     .then(() => app.listen(3000, () => console.log('Server running on port 3000')))
-    .catch(err => console.error(err));
+    .catch(err => console.error('Failed to connect to MongoDB:', err));
