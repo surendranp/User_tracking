@@ -53,5 +53,7 @@ window.addEventListener("beforeunload", () => {
         textSelections
     };
 
-    navigator.sendBeacon("https://usertracking-test.up.railway.app/api/save-visit", JSON.stringify(visitData));
+    // Use sendBeacon to ensure data is sent before the page unloads
+    const blob = new Blob([JSON.stringify(visitData)], { type: 'application/json' });
+    navigator.sendBeacon("https://usertracking-test.up.railway.app/api/save-visit", blob);
 });

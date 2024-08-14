@@ -60,6 +60,7 @@ app.post("/api/save-visit", async (req, res) => {
     if (!startTime || !endTime || duration === undefined || clickCount === undefined ||
         contactClicks === undefined || whatsappClicks === undefined || viewMoreClicks === undefined ||
         textSelections === undefined) {
+        console.error("Missing required fields", req.body);
         return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -76,6 +77,7 @@ app.post("/api/save-visit", async (req, res) => {
 
     try {
         await newVisit.save();
+        console.log("Visit data saved:", newVisit);
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
@@ -89,6 +91,7 @@ app.post("/api/save-text-selection", async (req, res) => {
     const { selectedText } = req.body;
 
     if (!selectedText) {
+        console.error("Missing selectedText field");
         return res.status(400).json({ error: "Missing selectedText field" });
     }
 
@@ -98,6 +101,7 @@ app.post("/api/save-text-selection", async (req, res) => {
 
     try {
         await newTextSelection.save();
+        console.log("Text selection saved:", newTextSelection);
         res.status(200).json({ message: "Text selection saved successfully" });
     } catch (err) {
         console.error("Error saving text selection:", err);
