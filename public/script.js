@@ -2,6 +2,9 @@ let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
 let viewMoreClicks = 0;
+    let homeClicks=0;
+    let aboutClicks=0;
+    let contactNavClicks=0;
 let textSelections = 0;
 let selectedTexts = [];
 
@@ -11,14 +14,20 @@ const sessionId = Math.random().toString(36).substr(2, 9); // Unique session ID 
 // Track navbar button clicks
 document.getElementById("homeButton").addEventListener("click", () => {
     trackNavbarClick("Home");
+    homeClicks++;
+    clickCount++;
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
     trackNavbarClick("About");
+    aboutClicks++;
+    clickCount++;
 });
 
 document.getElementById("contactNavButton").addEventListener("click", () => {
     trackNavbarClick("Contact");
+    contactNavClicks++;
+    clickCount++;
 });
 
 // Track other button clicks
@@ -78,6 +87,11 @@ window.addEventListener("beforeunload", () => {
             contactClicks,
             whatsappClicks,
             viewMoreClicks,
+            
+            homeClicks,
+            aboutClicks,
+            contactNavClicks,
+
             textSelections,
             sessionId
         })
