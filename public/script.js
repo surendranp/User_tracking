@@ -48,6 +48,18 @@ document.addEventListener("mouseup", () => {
     if (selectedText) {
         textSelections++;
         selectedTexts.push(selectedText);
+
+        // Save text selection data
+        fetch("/api/save-text-selection", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ selectedText })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Text selection saved:", data))
+        .catch(error => console.error("Error saving text selection:", error));
     }
 });
 
