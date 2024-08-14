@@ -14,19 +14,19 @@ const startTime = new Date();
 document.getElementById("homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
-    trackButtonClick("Home");
+    trackClick("Home");
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
     aboutClicks++;
     clickCount++;
-    trackButtonClick("About");
+    trackClick("About");
 });
 
 document.getElementById("contactNavButton").addEventListener("click", () => {
     contactNavClicks++;
     clickCount++;
-    trackButtonClick("ContactNav");
+    trackClick("ContactNav");
 });
 
 // Track other button clicks
@@ -96,3 +96,8 @@ window.addEventListener("beforeunload", () => {
     .then(data => console.log('Visit data saved:', data))
     .catch(error => console.error("Error saving visit data:", error));
 });
+
+// Function to track button clicks
+function trackClick(buttonName) {
+    console.log(`Tracking ${buttonName} button click`); // Debugging line
+}
