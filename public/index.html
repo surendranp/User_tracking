@@ -1,45 +1,28 @@
-<!-- public/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Tracking Page</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .button {
-            margin: 10px 0;
-        }
-        .butn_align{
-            width: 50%;
-
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        }
-    </style>
+    <title>Your Website</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Welcome to Our Website</h1>
-    <p>Click the buttons below to see tracking in action.</p>
-    <p>
-        Here is some sample text. Feel free to select any part of it to test the tracking feature.
-        You can also click the buttons below to track button clicks.
-    </p>
-    <section class="butn_align">
-    <button id="contactButton" class="btn btn-primary button">Contact</button>
-    <button id="whatsappButton" class="btn btn-success button">WhatsApp</button>
-    <button id="viewMoreButton" class="btn btn-info button">View More</button>
-     </section>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <img src="path_to_logo/logo.png" alt="Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" id="homeButton">Home</a></li>
+            <li><a href="#" id="aboutButton">About</a></li>
+            <li><a href="#" id="contactButton">Contact</a></li>
+        </ul>
+    </nav>
+
+    <div class="content">
+        <!-- Content for each page will be loaded here -->
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

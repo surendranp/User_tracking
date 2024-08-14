@@ -23,20 +23,22 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    startTime: { type: Date, required: true },
-    endTime: { type: Date, required: true },
-    duration: { type: Number, required: true },
-    clickCount: { type: Number, required: true },
-    contactClicks: { type: Number, required: true },
-    whatsappClicks: { type: Number, required: true },
-    viewMoreClicks: { type: Number, required: true },
-    textSelections: { type: Number, required: true }
+    startTime: Date,
+    endTime: Date,
+    duration: Number,
+    clickCount: Number,
+    contactClicks: Number,
+    whatsappClicks: Number,
+    viewMoreClicks: Number,
+    textSelections: Number,
+    buttonName: String,  // Track the button clicked
+    timestamp: { type: Date, default: Date.now } // Timestamp of the navbar click
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
-    selectedText: { type: String, required: true },
+    selectedText: String,
     timestamp: { type: Date, default: Date.now }
 });
 
@@ -44,9 +46,9 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body);
+    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, textSelections, buttonName, timestamp } = req.body;
 
-    const {
+    const newVisit = new Visit({
         startTime,
         endTime,
         duration,
@@ -54,30 +56,13 @@ app.post("/api/save-visit", async (req, res) => {
         contactClicks,
         whatsappClicks,
         viewMoreClicks,
-        textSelections
-    } = req.body;
-
-    if (!startTime || !endTime || duration === undefined || clickCount === undefined ||
-        contactClicks === undefined || whatsappClicks === undefined || viewMoreClicks === undefined ||
-        textSelections === undefined) {
-        console.error("Missing required fields", req.body);
-        return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const newVisit = new Visit({
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        textSelections
+        textSelections,
+        buttonName,
+        timestamp
     });
 
     try {
         await newVisit.save();
-        console.log("Visit data saved:", newVisit);
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
@@ -87,13 +72,7 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body);
     const { selectedText } = req.body;
-
-    if (!selectedText) {
-        console.error("Missing selectedText field");
-        return res.status(400).json({ error: "Missing selectedText field" });
-    }
 
     const newTextSelection = new TextSelection({
         selectedText
@@ -101,7 +80,6 @@ app.post("/api/save-text-selection", async (req, res) => {
 
     try {
         await newTextSelection.save();
-        console.log("Text selection saved:", newTextSelection);
         res.status(200).json({ message: "Text selection saved successfully" });
     } catch (err) {
         console.error("Error saving text selection:", err);
