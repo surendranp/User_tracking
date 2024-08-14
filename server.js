@@ -41,18 +41,7 @@ const visitSchema = new mongoose.Schema({
   clickCount: { type: Number, required: true },
   contactClicks: { type: Number, required: true },
   whatsappClicks: { type: Number, required: true },
-
-  // homeClicks: { type: Number, required: true },
-  // aboutClicks: { type: Number, required: true },
-  // paverblockClicks: { type: Number, required: true },
-  // hollowblockClicks: { type: Number, required: true },
-  // flyashblockClicks: { type: Number, required: true },
-  // qualitycontrolClicks: { type: Number, required: true },
-  // careerclicks: { type: Number, required: true },
-  // gmailClicks: { type: Number, required: true },
-  // phoneClicks: { type: Number, required: true },
-
-  // viewMoreClicks: { type: Number, required: true },
+  viewMoreClicks: { type: Number, required: true },
   textSelections: { type: Number, required: true },
 });
 
@@ -74,18 +63,7 @@ app.post("/api/save-visit", async (req, res) => {
     clickCount,
     contactClicks,
     whatsappClicks,
-
-    // homeClicks,
-    // aboutClicks,
-    // paverblockClicks,
-    // hollowblockClicks,
-    // flyashblockClicks,
-    // qualitycontrolClicks,
-    // careerclicks,
-    // gmailClicks,
-    // phoneClicks,
-
-    // viewMoreClicks,
+    viewMoreClicks,
     textSelections,
   } = req.body;
 
@@ -96,18 +74,7 @@ app.post("/api/save-visit", async (req, res) => {
     clickCount,
     contactClicks,
     whatsappClicks,
-
-    // homeClicks,
-    // aboutClicks,
-    // paverblockClicks,
-    // hollowblockClicks,
-    // flyashblockClicks,
-    // qualitycontrolClicks,
-    // careerclicks,
-    // gmailClicks,
-    // phoneClicks,
-
-    // viewMoreClicks,
+    viewMoreClicks,
     textSelections,
   });
 
