@@ -8,8 +8,8 @@ let contactNavClicks = 0;
 let textSelections = 0;
 let selectedTexts = [];
 
-const startTime = new Date();
-const sessionId = Math.random().toString(36).substr(2, 9); // Unique session ID for tracking
+// const startTime = new Date();
+// const sessionId = Math.random().toString(36).substr(2, 9);  Unique session ID for tracking
 
 // Track navbar button clicks
 document.getElementById("homeButton")?.addEventListener("click", () => {
