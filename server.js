@@ -27,12 +27,10 @@ const visitSchema = new mongoose.Schema({
     contactClicks: Number,
     whatsappClicks: Number,
     viewMoreClicks: Number,
-
     homeClicks:Number,
     aboutClicks:Number,
     contactNavClicks:Number,
     textSelections: Number,
-
     buttonName: String,
     timestamp: { type: Date, default: Date.now },
     sessionId: String // Added sessionId field
@@ -58,9 +56,9 @@ app.post("/api/save-visit", async (req, res) => {
         contactClicks,
         whatsappClicks,
         viewMoreClicks,
-    homeClicks,
-    aboutClicks,
-    contactNavClicks,
+         homeClicks,
+         aboutClicks,
+         contactNavClicks,
         textSelections,
         buttonName,
         timestamp,

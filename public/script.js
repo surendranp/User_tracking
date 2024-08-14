@@ -87,11 +87,9 @@ window.addEventListener("beforeunload", () => {
             contactClicks,
             whatsappClicks,
             viewMoreClicks,
-            
             homeClicks,
             aboutClicks,
             contactNavClicks,
-
             textSelections,
             sessionId
         })
