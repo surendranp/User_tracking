@@ -2,9 +2,9 @@ let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
 let viewMoreClicks = 0;
-    let homeClicks=0;
-    let aboutClicks=0;
-    let contactNavClicks=0;
+let homeClicks = 0;
+let aboutClicks = 0;
+let contactNavClicks = 0;
 let textSelections = 0;
 let selectedTexts = [];
 
@@ -68,7 +68,7 @@ document.addEventListener("mouseup", () => {
     }
 });
 
-// Track page leave event.
+// Track page leave event
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
