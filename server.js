@@ -41,23 +41,21 @@ const visitSchema = new mongoose.Schema({
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
-    textSelections: Number,
-    sessionId: String // Added sessionId field
+    textSelections: Number
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
     selectedText: String,
-    timestamp: { type: Date, default: Date.now },
-    sessionId: String // Added sessionId field
+    timestamp: { type: Date, default: Date.now }
 });
 
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections, sessionId, buttonName, timestamp } = req.body;
+    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections } = req.body;
 
     const newVisit = new Visit({
         startTime,
@@ -70,8 +68,7 @@ app.post("/api/save-visit", async (req, res) => {
         homeClicks,
         aboutClicks,
         contactNavClicks,
-        textSelections,
-        sessionId
+        textSelections
     });
 
     try {
@@ -85,11 +82,10 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    const { selectedText, sessionId } = req.body;
+    const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
-        selectedText,
-        sessionId
+        selectedText
     });
 
     try {

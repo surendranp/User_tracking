@@ -8,45 +8,38 @@ let contactNavClicks = 0;
 let textSelections = 0;
 let selectedTexts = [];
 
-// const startTime = new Date();
-// const sessionId = Math.random().toString(36).substr(2, 9);  Unique session ID for tracking
+const startTime = new Date();
 
 // Track navbar button clicks
-document.getElementById("homeButton")?.addEventListener("click", () => {
-    trackNavbarClick("Home");
+document.getElementById("homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
 });
 
-document.getElementById("aboutButton")?.addEventListener("click", () => {
-    trackNavbarClick("About");
+document.getElementById("aboutButton").addEventListener("click", () => {
     aboutClicks++;
     clickCount++;
 });
 
-document.getElementById("contactNavButton")?.addEventListener("click", () => {
-    trackNavbarClick("Contact");
+document.getElementById("contactNavButton").addEventListener("click", () => {
     contactNavClicks++;
     clickCount++;
 });
 
 // Track other button clicks
-document.getElementById("contactButton")?.addEventListener("click", () => {
+document.getElementById("contactButton").addEventListener("click", () => {
     contactClicks++;
     clickCount++;
-    trackButtonClick("Contact");
 });
 
-document.getElementById("whatsappButton")?.addEventListener("click", () => {
+document.getElementById("whatsappButton").addEventListener("click", () => {
     whatsappClicks++;
     clickCount++;
-    trackButtonClick("WhatsApp");
 });
 
-document.getElementById("viewMoreButton")?.addEventListener("click", () => {
+document.getElementById("viewMoreButton").addEventListener("click", () => {
     viewMoreClicks++;
     clickCount++;
-    trackButtonClick("View More");
 });
 
 // Track text selections
@@ -60,7 +53,7 @@ document.addEventListener("mouseup", () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ selectedText, sessionId })
+            body: JSON.stringify({ selectedText })
         })
         .then(response => response.json())
         .then(data => console.log("Text selection saved:", data))
@@ -68,7 +61,7 @@ document.addEventListener("mouseup", () => {
     }
 });
 
-// Track page leave event
+// Track page leave event.
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
@@ -90,47 +83,10 @@ window.addEventListener("beforeunload", () => {
             homeClicks,
             aboutClicks,
             contactNavClicks,
-            textSelections,
-            sessionId
+            textSelections
         })
     })
     .then(response => response.json())
     .then(data => console.log('Visit data saved:', data))
     .catch(error => console.error("Error saving visit data:", error));
 });
-
-// Function to track navbar clicks
-function trackNavbarClick(buttonName) {
-    fetch("/api/save-visit", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            buttonName,
-            timestamp: new Date(),
-            sessionId
-        })
-    })
-    .then(response => response.json())
-    .then(data => console.log(`${buttonName} button click saved:`, data))
-    .catch(error => console.error(`Error saving ${buttonName} button click:`, error));
-}
-
-// Function to track other button clicks
-function trackButtonClick(buttonName) {
-    fetch("/api/save-visit", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            buttonName,
-            timestamp: new Date(),
-            sessionId
-        })
-    })
-    .then(response => response.json())
-    .then(data => console.log(`${buttonName} button click saved:`, data))
-    .catch(error => console.error(`Error saving ${buttonName} button click:`, error));
-}
