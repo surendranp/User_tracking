@@ -771,7 +771,7 @@
 		 
 	   </div>
 	<!--js -->
-    <script src="script.js"></script>
+    <!-- <script src="script.js"></script> -->
        <script src="assets/js/jquery.min.js"></script>
       <script src="assets/js/jquery.shuffle.min.js"></script>
       <script src="assets/js/custom.js"></script>
@@ -784,57 +784,66 @@
 	  <script src="assets/js/jquery.barfiller.js"></script>
 	  <script src='../www.google.com/recaptcha/api.js'></script> 
      
-<script>
-   document.addEventListener('DOMContentLoaded', () => {
-  const trackVisit = async (path) => {
-    try {
-      await fetch('/trackVisit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ path }),
+     <script>
+      // Track visit start time
+      const visitStartTime = new Date();
+
+      // Track navbar button clicks
+      document.querySelectorAll('nav.main-nav a').forEach(button => {
+          button.addEventListener('click', () => {
+              const buttonText = button.innerText;
+              const clickTime = new Date();
+
+              // Send data to the server
+              fetch('/track', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      eventType: 'navbarClick',
+                      buttonText: buttonText,
+                      clickTime: clickTime,
+                      visitStartTime: visitStartTime
+                  })
+              });
+          });
       });
-    } catch (error) {
-      console.error('Error tracking visit:', error);
-    }
-  };
 
-  const trackTextSelection = async (content) => {
-    try {
-      await fetch('/trackTextSelection', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content }),
+      // Track text selection
+      document.addEventListener('mouseup', () => {
+          const selectedText = window.getSelection().toString().trim();
+          if (selectedText) {
+              const selectionTime = new Date();
+
+              // Send data to the server
+              fetch('/track', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      eventType: 'textSelection',
+                      selectedText: selectedText,
+                      selectionTime: selectionTime,
+                      visitStartTime: visitStartTime
+                  })
+              });
+          }
       });
-    } catch (error) {
-      console.error('Error tracking text selection:', error);
-    }
-  };
 
-  // Track page visit
-  trackVisit(window.location.pathname);
+      // Track visit end time before unloading the page
+      window.addEventListener('beforeunload', () => {
+          const visitEndTime = new Date();
 
-  // Track text selection
-  document.addEventListener('mouseup', () => {
-    const selection = window.getSelection();
-    if (selection.toString().trim() !== '') {
-      trackTextSelection(selection.toString());
-    }
-  });
-
-  // Track navbar clicks
-  document.querySelectorAll('nav a').forEach(link => {
-    link.addEventListener('click', () => {
-      trackVisit(link.getAttribute('href'));
-    });
-  });
-});
-
-
-</script>
+          // Send data to the server
+          navigator.sendBeacon('/track', JSON.stringify({
+              eventType: 'visitEnd',
+              visitStartTime: visitStartTime,
+              visitEndTime: visitEndTime
+          }));
+      });
+  </script>
      <!-- Google API For Recaptcha  -->
 <script>
 function submitUserForm() {

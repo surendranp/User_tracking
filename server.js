@@ -1,116 +1,45 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    maxPoolSize: 1000
-}).then(() => {
-    console.log("Connected to MongoDB");
-}).catch((err) => {
-    console.error("Connection error:", err);
-});
-
-// Define Schemas and Models
-const visitSchema = new mongoose.Schema({
-    startTime: Date,
-    endTime: Date,
-    duration: Number,
-    clickCount: Number,
-    contactClicks: Number,
-    whatsappClicks: Number,
-    viewMoreClicks: Number,
-    homeClicks: Number,
-    aboutClicks: Number,
-    contactNavClicks: Number,
-    textSelections: Number,
-    selectedTexts: [String] // Store selected texts as an array of strings
-});
-
-const Visit = mongoose.model("Visit", visitSchema);
-
-const textSelectionSchema = new mongoose.Schema({
+// Mongoose schema and model for tracking interactions
+const interactionSchema = new mongoose.Schema({
+    eventType: String,
+    buttonText: String,
+    clickTime: Date,
     selectedText: String,
-    timestamp: { type: Date, default: Date.now }
+    selectionTime: Date,
+    visitStartTime: Date,
+    visitEndTime: Date
 });
 
-const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
+const Interaction = mongoose.model('Interaction', interactionSchema);
 
-// API Endpoint to Save Visit Data
-app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Debugging line
-
-    const {
-        startTime,
-        endTime,
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections,
-        selectedTexts
-    } = req.body;
-
-    const newVisit = new Visit({
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections,
-        selectedTexts
-    });
-
+// Endpoint to track user interactions
+app.post('/track', async (req, res) => {
     try {
-        await newVisit.save();
-        res.status(200).json({ message: "Visit data saved successfully" });
-    } catch (err) {
-        console.error("Error saving visit:", err);
-        res.status(500).json({ error: "Failed to save visit data" });
+        const interaction = new Interaction(req.body);
+        await interaction.save();
+        res.status(200).send('Interaction recorded');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error recording interaction');
     }
 });
 
-// API Endpoint to Save Text Selection Data
-app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body); // Debugging line
-
-    const { selectedText } = req.body;
-
-    const newTextSelection = new TextSelection({
-        selectedText
-    });
-
-    try {
-        await newTextSelection.save();
-        res.status(200).json({ message: "Text selection saved successfully" });
-    } catch (err) {
-        console.error("Error saving text selection:", err);
-        res.status(500).json({ error: "Failed to save text selection data" });
-    }
+// Serve the index page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start the Server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Connect to MongoDB and start the server
+mongoose.connect('mongodb://localhost:27017/yourdbname', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => app.listen(3000, () => console.log('Server running on port 3000')))
+    .catch(err => console.error(err));
