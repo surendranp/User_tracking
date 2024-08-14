@@ -40,6 +40,6 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB and start the server
-mongoose.connect('mongodb://localhost:27017/yourdbname', { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect('mongodb://localhost:27017/userTrackingDB', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => app.listen(3000, () => console.log('Server running on port 3000')))
     .catch(err => console.error(err));
