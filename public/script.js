@@ -63,8 +63,8 @@ window.addEventListener("beforeunload", () => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            startTime,
-            endTime,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
             duration,
             clickCount,
             contactClicks,
