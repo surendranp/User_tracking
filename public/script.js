@@ -14,19 +14,16 @@ const startTime = new Date();
 document.getElementById("homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
-    trackClick("Home");
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
     aboutClicks++;
     clickCount++;
-    trackClick("About");
 });
 
 document.getElementById("contactNavButton").addEventListener("click", () => {
     contactNavClicks++;
     clickCount++;
-    trackClick("ContactNav");
 });
 
 // Track other button clicks
@@ -51,8 +48,6 @@ document.addEventListener("mouseup", () => {
     if (selectedText) {
         textSelections++;
         selectedTexts.push(selectedText);
-
-        // Save text selection data
         fetch("/api/save-text-selection", {
             method: "POST",
             headers: {
@@ -66,7 +61,7 @@ document.addEventListener("mouseup", () => {
     }
 });
 
-// Track page leave event
+// Track page leave event.
 window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
@@ -78,8 +73,8 @@ window.addEventListener("beforeunload", () => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
+            startTime,
+            endTime,
             duration,
             clickCount,
             contactClicks,
@@ -88,16 +83,10 @@ window.addEventListener("beforeunload", () => {
             homeClicks,
             aboutClicks,
             contactNavClicks,
-            textSelections,
-            selectedTexts
+            textSelections
         })
     })
     .then(response => response.json())
     .then(data => console.log('Visit data saved:', data))
     .catch(error => console.error("Error saving visit data:", error));
 });
-
-// Function to track button clicks
-function trackClick(buttonName) {
-    console.log(`Tracking ${buttonName} button click`); // Debugging line
-}

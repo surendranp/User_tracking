@@ -14,11 +14,19 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    maxPoolSize: 1000
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
+    maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
     console.error("Connection error:", err);
+});
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => {
+    console.log("MongoDB connection is open");
 });
 
 // Define Schemas and Models
@@ -33,8 +41,7 @@ const visitSchema = new mongoose.Schema({
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
-    textSelections: Number,
-    selectedTexts: [String] // Store selected texts as an array of strings
+    textSelections: Number
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -48,9 +55,9 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Debugging line
+    const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections } = req.body;
 
-    const {
+    const newVisit = new Visit({
         startTime,
         endTime,
         duration,
@@ -61,23 +68,7 @@ app.post("/api/save-visit", async (req, res) => {
         homeClicks,
         aboutClicks,
         contactNavClicks,
-        textSelections,
-        selectedTexts
-    } = req.body;
-
-    const newVisit = new Visit({
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections,
-        selectedTexts
+        textSelections
     });
 
     try {
@@ -91,8 +82,6 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body); // Debugging line
-
     const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
@@ -105,6 +94,28 @@ app.post("/api/save-text-selection", async (req, res) => {
     } catch (err) {
         console.error("Error saving text selection:", err);
         res.status(500).json({ error: "Failed to save text selection data" });
+    }
+});
+
+// API Endpoint to Get Visit Data for Dashboard
+app.get("/api/get-visits", async (req, res) => {
+    try {
+        const visits = await Visit.find({});
+        res.status(200).json(visits);
+    } catch (err) {
+        console.error("Error retrieving visits:", err);
+        res.status(500).json({ error: "Failed to retrieve visit data" });
+    }
+});
+
+// API Endpoint to Get Text Selection Data for Dashboard
+app.get("/api/get-text-selections", async (req, res) => {
+    try {
+        const textSelections = await TextSelection.find({});
+        res.status(200).json(textSelections);
+    } catch (err) {
+        console.error("Error retrieving text selections:", err);
+        res.status(500).json({ error: "Failed to retrieve text selection data" });
     }
 });
 
