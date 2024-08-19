@@ -196,7 +196,7 @@
 
 
 <script>
-    let clickCount = 0;
+let clickCount = 0;
 let contactClicks = 0;
 let whatsappClicks = 0;
 let viewMoreClicks = 0;
@@ -212,19 +212,19 @@ const startTime = new Date();
 document.getElementById("homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
-    trackClick("Home");
+    console.log(`Tracking Home button click`); // Debugging line
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
     aboutClicks++;
     clickCount++;
-    trackClick("About");
+    console.log(`Tracking About button click`); // Debugging line
 });
 
 document.getElementById("contactNavButton").addEventListener("click", () => {
     contactNavClicks++;
     clickCount++;
-    trackClick("ContactNav");
+    console.log(`Tracking ContactNav button click`); // Debugging line
 });
 
 // Track other button clicks
@@ -295,10 +295,6 @@ window.addEventListener("beforeunload", () => {
     .catch(error => console.error("Error saving visit data:", error));
 });
 
-// Function to track button clicks
-function trackClick(buttonName) {
-    console.log(`Tracking ${buttonName} button click`); // Debugging line
-}
 
 </script>
 <script src="assets/js/jquery.min.js"></script>
