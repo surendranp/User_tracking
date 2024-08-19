@@ -4,7 +4,7 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize visit data
+// Initialize click counters
 let visitData = {
     sessionId: sessionId,
     clickCount: 0,
@@ -23,17 +23,11 @@ let visitData = {
     selectedTexts: []
 };
 
-// Function to generate a unique session ID
-function generateSessionId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
-
 // Function to update visit data
 function updateVisitData(key) {
-    if (visitData[key] !== undefined) {
-        visitData[key]++;
-        visitData.clickCount++;
-    }
+    visitData[key]++;
+    visitData.clickCount++;
+    saveVisitData();
 }
 
 // Function to save visit data to the server
@@ -51,29 +45,17 @@ function saveVisitData() {
 }
 
 // Button click event listeners
-const buttons = {
-    homeButton: 'homeClicks',
-    aboutButton: 'aboutClicks',
-    contactNavButton: 'contactNavClicks',
-    paverButton: 'paverClick',
-    hollowButton: 'holloClick',
-    flyashButton: 'flyashClick',
-    qualityButton: 'qualityClick',
-    CareerButton: 'CareerClick',
-    QuoteButton: 'QuoteClick',
-    productButton: 'productClick',
-    whatsappButton: 'whatsappClicks'
-};
-
-Object.keys(buttons).forEach(buttonClass => {
-    const button = document.querySelector(`.${buttonClass}`);
-    if (button) {
-        button.addEventListener("click", () => {
-            updateVisitData(buttons[buttonClass]);
-            saveVisitData();
-        });
-    }
-});
+document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
+document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
+document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
+document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
+document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
+document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
+document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
+document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
+document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
+document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
+document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
 
 // Track text selections
 document.addEventListener("mouseup", () => {
@@ -97,6 +79,4 @@ document.addEventListener("mouseup", () => {
 });
 
 // Save visit data when the page is unloaded
-window.addEventListener("beforeunload", () => {
-    saveVisitData();
-});
+window.addEventListener("beforeunload", saveVisitData);
