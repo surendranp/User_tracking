@@ -18,17 +18,17 @@ let sessionId = generateSessionId();
         }
 
         // Track navbar button clicks
-        document.getElementById("homeButton").addEventListener("click", () => {
+        document.querySelector(".homeButton").addEventListener("click", () => {
             homeClicks++;
             clickCount++;
         });
 
-        document.getElementById("aboutButton").addEventListener("click", () => {
+        document.querySelector(".aboutButton").addEventListener("click", () => {
             aboutClicks++;
             clickCount++;
         });
 
-        document.getElementById("contactNavButton").addEventListener("click", () => {
+        document.querySelector(".contactNavButton").addEventListener("click", () => {
             contactNavClicks++;
             clickCount++;
         });
