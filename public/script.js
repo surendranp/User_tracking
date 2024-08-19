@@ -8,6 +8,10 @@ let sessionId = generateSessionId();
         let contactNavClicks = 0;
         let paverClick =0;
         let holloClick =0;
+        let flyashClick=0;
+        let qualityClick=0;
+        let CareerClick=0;
+        let QuoteClick=0;
         let textSelections = 0;
         let selectedTexts = [];
 
@@ -41,7 +45,26 @@ let sessionId = generateSessionId();
             holloClick++;
             clickCount++;
         });
-
+        
+        document.querySelector(".flyashButton").addEventListener("click", () => {
+            flyashClick++;
+            clickCount++;
+        });
+        
+        document.querySelector(".qualityButton").addEventListener("click", () => {
+            qualityClick++;
+            clickCount++;
+        });
+        
+        document.querySelector(".CareerButton").addEventListener("click", () => {
+            CareerClick++;
+            clickCount++;
+        });
+        
+        document.querySelector(".QuoteButton").addEventListener("click", () => {
+            QuoteClick++;
+            clickCount++;
+        });
         // Track other button clicks
         // document.getElementById("contactButton").addEventListener("click", () => {
         //     contactClicks++;
@@ -52,6 +75,7 @@ let sessionId = generateSessionId();
             whatsappClicks++;
             clickCount++;
         });
+        
 
         // document.getElementById("viewMoreButton").addEventListener("click", () => {
         //     viewMoreClicks++;
@@ -104,6 +128,10 @@ let sessionId = generateSessionId();
                     contactNavClicks,
                     paverClick,
                     holloClick,
+                    flyashClick,
+                    qualityClick,
+                    CareerClick,
+                    QuoteClick,
                     textSelections,
                     selectedTexts
                 })

@@ -38,6 +38,10 @@ const visitSchema = new mongoose.Schema({
     contactNavClicks: Number,
     paverClick: Number,
     holloClick: Number,
+    flyashClick: Number,
+    qualityClick: Number,
+    CareerClick: Number,
+    QuoteClick:Number,
     textSelections: Number,
     selectedTexts: [String] // Store selected texts as an array of strings
 });
@@ -70,6 +74,10 @@ app.post("/api/save-visit", async (req, res) => {
         contactNavClicks,
         paverClick,
         holloClick,
+        flyashClick,
+        qualityClick,
+        CareerClick,
+        QuoteClick,
         textSelections,
         selectedTexts
     } = req.body;
@@ -90,6 +98,10 @@ app.post("/api/save-visit", async (req, res) => {
             visit.contactNavClicks = contactNavClicks;
             visit.paverClick= paverClick;
             visit.holloClick= holloClick;
+            visit.flyashClick=flyashClick;
+            visit.qualityClick=qualityClick;
+            visit.CareerClick=CareerClick;
+            visit.QuoteClick=QuoteClick;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
             await visit.save();
@@ -109,6 +121,10 @@ app.post("/api/save-visit", async (req, res) => {
                 contactNavClicks,
                 paverClick,
                 holloClick,
+                flyashClick,
+                qualityClick,
+                CareerClick,
+                QuoteClick,
                 textSelections,
                 selectedTexts
             });
