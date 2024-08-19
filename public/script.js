@@ -1,12 +1,13 @@
 let sessionId = generateSessionId();
         let clickCount = 0;
-        let contactClicks = 0;
+        // let contactClicks = 0;
         let whatsappClicks = 0;
-        let viewMoreClicks = 0;
+        // let viewMoreClicks = 0;
         let homeClicks = 0;
         let aboutClicks = 0;
         let contactNavClicks = 0;
         let paverClick =0;
+        let holloClick =0;
         let textSelections = 0;
         let selectedTexts = [];
 
@@ -36,22 +37,26 @@ let sessionId = generateSessionId();
             paverClick++;
             clickCount++;
         });
-
-        // Track other button clicks
-        document.getElementById("contactButton").addEventListener("click", () => {
-            contactClicks++;
+        document.querySelector(".hollowButton").addEventListener("click", () => {
+            holloClick++;
             clickCount++;
         });
 
-        document.getElementById("whatsappButton").addEventListener("click", () => {
+        // Track other button clicks
+        // document.getElementById("contactButton").addEventListener("click", () => {
+        //     contactClicks++;
+        //     clickCount++;
+        // });
+
+        document.querySelector(".whatsappButton").addEventListener("click", () => {
             whatsappClicks++;
             clickCount++;
         });
 
-        document.getElementById("viewMoreButton").addEventListener("click", () => {
-            viewMoreClicks++;
-            clickCount++;
-        });
+        // document.getElementById("viewMoreButton").addEventListener("click", () => {
+        //     viewMoreClicks++;
+        //     clickCount++;
+        // });
 
         // Track text selections
         document.addEventListener("mouseup", () => {
@@ -91,13 +96,14 @@ let sessionId = generateSessionId();
                     endTime: endTime.toISOString(),
                     duration,
                     clickCount,
-                    contactClicks,
+                    // contactClicks,
                     whatsappClicks,
-                    viewMoreClicks,
+                    // viewMoreClicks,
                     homeClicks,
                     aboutClicks,
                     contactNavClicks,
                     paverClick,
+                    holloClick,
                     textSelections,
                     selectedTexts
                 })

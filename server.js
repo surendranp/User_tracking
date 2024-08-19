@@ -30,13 +30,14 @@ const visitSchema = new mongoose.Schema({
     endTime: Date,
     duration: Number,
     clickCount: Number,
-    contactClicks: Number,
+    // contactClicks: Number,
     whatsappClicks: Number,
-    viewMoreClicks: Number,
+    // viewMoreClicks: Number,
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
     paverClick: Number,
+    holloClick: Number,
     textSelections: Number,
     selectedTexts: [String] // Store selected texts as an array of strings
 });
@@ -61,13 +62,14 @@ app.post("/api/save-visit", async (req, res) => {
         endTime,
         duration,
         clickCount,
-        contactClicks,
+        // contactClicks,
         whatsappClicks,
-        viewMoreClicks,
+        // viewMoreClicks,
         homeClicks,
         aboutClicks,
         contactNavClicks,
         paverClick,
+        holloClick,
         textSelections,
         selectedTexts
     } = req.body;
@@ -80,13 +82,14 @@ app.post("/api/save-visit", async (req, res) => {
             visit.endTime = new Date(endTime);
             visit.duration = duration;
             visit.clickCount = clickCount;
-            visit.contactClicks = contactClicks;
+            // visit.contactClicks = contactClicks;
             visit.whatsappClicks = whatsappClicks;
-            visit.viewMoreClicks = viewMoreClicks;
+            // visit.viewMoreClicks = viewMoreClicks;
             visit.homeClicks = homeClicks;
             visit.aboutClicks = aboutClicks;
             visit.contactNavClicks = contactNavClicks;
             visit.paverClick= paverClick;
+            visit.holloClick= holloClick;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
             await visit.save();
@@ -98,13 +101,14 @@ app.post("/api/save-visit", async (req, res) => {
                 endTime: new Date(endTime),
                 duration,
                 clickCount,
-                contactClicks,
+                // contactClicks,
                 whatsappClicks,
-                viewMoreClicks,
+                // viewMoreClicks,
                 homeClicks,
                 aboutClicks,
                 contactNavClicks,
                 paverClick,
+                holloClick,
                 textSelections,
                 selectedTexts
             });
