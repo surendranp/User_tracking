@@ -71,7 +71,7 @@ let sessionId = generateSessionId();
         //     clickCount++;
         // });
 
-        document.querySelector(".whatsappButton").addEventListener("click", () => {
+        document.querySelector("#whatsapp").addEventListener("click", () => {
             whatsappClicks++;
             clickCount++;
         });
