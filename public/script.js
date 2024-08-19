@@ -18,8 +18,15 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     qualityClick: 0,
     CareerClick: 0,
     QuoteClick: 0,
-    productClick: 0
+    productClick: 0,
+    textSelections: 0,
+    selectedTexts: []
 };
+
+// Function to generate a unique session ID
+function generateSessionId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
 
 // Function to update visit data
 function updateVisitData(key) {
@@ -43,6 +50,27 @@ function saveVisitData() {
     .catch(error => console.error("Error saving visit data:", error));
 }
 
+// Function to handle text selection
+function handleTextSelection() {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText) {
+        visitData.textSelections++;
+        visitData.selectedTexts.push(selectedText);
+        localStorage.setItem("visitData", JSON.stringify(visitData));
+
+        fetch("/api/save-text-selection", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sessionId, selectedText })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Text selection saved:", data))
+        .catch(error => console.error("Error saving text selection:", error));
+    }
+}
+
 // Button click event listeners
 document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
 document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
@@ -58,3 +86,6 @@ document.querySelector(".whatsappButton").addEventListener("click", () => update
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
+
+// Track text selections
+document.addEventListener("mouseup", handleTextSelection);
