@@ -14,16 +14,19 @@ const startTime = new Date();
 document.getElementById("homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
+    trackClick("Home");
 });
 
 document.getElementById("aboutButton").addEventListener("click", () => {
     aboutClicks++;
     clickCount++;
+    trackClick("About");
 });
 
 document.getElementById("contactNavButton").addEventListener("click", () => {
     contactNavClicks++;
     clickCount++;
+    trackClick("ContactNav");
 });
 
 // Track other button clicks
@@ -48,6 +51,8 @@ document.addEventListener("mouseup", () => {
     if (selectedText) {
         textSelections++;
         selectedTexts.push(selectedText);
+
+        // Save text selection data
         fetch("/api/save-text-selection", {
             method: "POST",
             headers: {
@@ -62,36 +67,37 @@ document.addEventListener("mouseup", () => {
 });
 
 // Track page leave event
-window.addEventListener("beforeunload", (event) => {
+window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
-    console.log("Sending visit data:", {
-        startTime,
-        endTime,
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections
-    });
-
     // Save visit data to the server
-    navigator.sendBeacon("/api/save-visit", JSON.stringify({
-        startTime,
-        endTime,
-        duration,
-        clickCount,
-        contactClicks,
-        whatsappClicks,
-        viewMoreClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        textSelections
-    }));
+    fetch("/api/save-visit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            duration,
+            clickCount,
+            contactClicks,
+            whatsappClicks,
+            viewMoreClicks,
+            homeClicks,
+            aboutClicks,
+            contactNavClicks,
+            textSelections,
+            selectedTexts
+        })
+    })
+    .then(response => response.json())
+    .then(data => console.log('Visit data saved:', data))
+    .catch(error => console.error("Error saving visit data:", error));
 });
+
+// Function to track button clicks
+function trackClick(buttonName) {
+    console.log(`Tracking ${buttonName} button click`); // Debugging line
+}
