@@ -79,51 +79,30 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        const visit = await Visit.findOne({ sessionId });
-
-        if (visit) {
-            // Update existing visit document
-            visit.endTime = new Date(endTime);
-            visit.duration = duration;
-            visit.clickCount = clickCount;
-            visit.whatsappClicks = whatsappClicks;
-            visit.homeClicks = homeClicks;
-            visit.aboutClicks = aboutClicks;
-            visit.contactNavClicks = contactNavClicks;
-            visit.paverClick = paverClick;
-            visit.holloClick = holloClick;
-            visit.flyashClick = flyashClick;
-            visit.qualityClick = qualityClick;
-            visit.CareerClick = CareerClick;
-            visit.QuoteClick = QuoteClick;
-            visit.productClick = productClick;
-            visit.textSelections = textSelections;
-            visit.selectedTexts = selectedTexts;
-            await visit.save();
-        } else {
-            // Create a new visit document
-            const newVisit = new Visit({
-                sessionId,
-                startTime: new Date(startTime),
-                endTime: new Date(endTime),
-                duration,
-                clickCount,
-                whatsappClicks,
-                homeClicks,
-                aboutClicks,
-                contactNavClicks,
-                paverClick,
-                holloClick,
-                flyashClick,
-                qualityClick,
-                CareerClick,
-                QuoteClick,
-                productClick,
-                textSelections,
-                selectedTexts
-            });
-            await newVisit.save();
-        }
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId }, // Find the document with the same sessionId
+            {
+                $set: { 
+                    endTime: new Date(endTime),
+                    duration,
+                    clickCount,
+                    whatsappClicks,
+                    homeClicks,
+                    aboutClicks,
+                    contactNavClicks,
+                    paverClick,
+                    holloClick,
+                    flyashClick,
+                    qualityClick,
+                    CareerClick,
+                    QuoteClick,
+                    productClick,
+                    textSelections,
+                    selectedTexts
+                }
+            },
+            { upsert: true, new: true } // If not found, create a new document
+        );
 
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
