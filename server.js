@@ -58,8 +58,8 @@ app.post("/api/save-visit", async (req, res) => {
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections } = req.body;
 
     const newVisit = new Visit({
-        startTime,
-        endTime,
+        startTime: new Date(startTime),  // Ensure Date format is correct
+        endTime: new Date(endTime),
         duration,
         clickCount,
         contactClicks,

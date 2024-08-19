@@ -61,32 +61,23 @@ document.addEventListener("mouseup", () => {
     }
 });
 
-// Track page leave event.
-window.addEventListener("beforeunload", () => {
+// Track page leave event
+window.addEventListener("beforeunload", (event) => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
     // Save visit data to the server
-    fetch("/api/save-visit", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            startTime,
-            endTime,
-            duration,
-            clickCount,
-            contactClicks,
-            whatsappClicks,
-            viewMoreClicks,
-            homeClicks,
-            aboutClicks,
-            contactNavClicks,
-            textSelections
-        })
-    })
-    .then(response => response.json())
-    .then(data => console.log('Visit data saved:', data))
-    .catch(error => console.error("Error saving visit data:", error));
+    navigator.sendBeacon("/api/save-visit", JSON.stringify({
+        startTime,
+        endTime,
+        duration,
+        clickCount,
+        contactClicks,
+        whatsappClicks,
+        viewMoreClicks,
+        homeClicks,
+        aboutClicks,
+        contactNavClicks,
+        textSelections
+    }));
 });
