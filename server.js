@@ -12,8 +12,8 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
     maxPoolSize: 1000
 }).then(() => {
     console.log("Connected to MongoDB");
@@ -73,6 +73,7 @@ app.post("/api/save-visit", async (req, res) => {
         let visit = await Visit.findOne({ sessionId });
 
         if (visit) {
+            // Update existing visit document
             visit.clickCount = clickCount;
             visit.whatsappClicks = whatsappClicks;
             visit.homeClicks = homeClicks;
@@ -88,6 +89,7 @@ app.post("/api/save-visit", async (req, res) => {
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
         } else {
+            // Create a new visit document
             visit = new Visit({
                 sessionId,
                 clickCount,
