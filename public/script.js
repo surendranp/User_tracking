@@ -4,8 +4,8 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize click counters and other variables
-let visitData = {
+// Initialize or retrieve click counters
+let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     clickCount: 0,
     whatsappClicks: 0,
     homeClicks: 0,
@@ -17,15 +17,14 @@ let visitData = {
     qualityClick: 0,
     CareerClick: 0,
     QuoteClick: 0,
-    productClick: 0,
-    textSelections: 0,
-    selectedTexts: []
+    productClick: 0
 };
 
 // Function to update visit data
 function updateVisitData(key) {
     visitData[key]++;
     visitData.clickCount++;
+    localStorage.setItem("visitData", JSON.stringify(visitData));
 }
 
 // Function to save visit data to the server
@@ -57,15 +56,6 @@ document.querySelector(".CareerButton").addEventListener("click", () => updateVi
 document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
 document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
 document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
-
-// Track text selections
-document.addEventListener("mouseup", () => {
-    const selectedText = window.getSelection().toString().trim();
-    if (selectedText) {
-        visitData.textSelections++;
-        visitData.selectedTexts.push(selectedText);
-    }
-});
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);

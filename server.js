@@ -35,9 +35,7 @@ const visitSchema = new mongoose.Schema({
     qualityClick: Number,
     CareerClick: Number,
     QuoteClick: Number,
-    productClick: Number,
-    textSelections: Number,
-    selectedTexts: [String]
+    productClick: Number
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -57,9 +55,7 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
-        productClick,
-        textSelections,
-        selectedTexts
+        productClick
     } = req.body;
 
     try {
@@ -79,8 +75,6 @@ app.post("/api/save-visit", async (req, res) => {
             visit.CareerClick = CareerClick;
             visit.QuoteClick = QuoteClick;
             visit.productClick = productClick;
-            visit.textSelections = textSelections;
-            visit.selectedTexts = selectedTexts;
             await visit.save();
         } else {
             // Create a new visit document
@@ -97,9 +91,7 @@ app.post("/api/save-visit", async (req, res) => {
                 qualityClick,
                 CareerClick,
                 QuoteClick,
-                productClick,
-                textSelections,
-                selectedTexts
+                productClick
             });
             await newVisit.save();
         }
