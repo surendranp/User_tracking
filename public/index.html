@@ -196,7 +196,7 @@
 
 
 <script>
-let sessionId = generateSessionId();
+  let sessionId = Date.now().toString(); // Generate a unique session ID
         let clickCount = 0;
         let contactClicks = 0;
         let whatsappClicks = 0;
@@ -208,11 +208,6 @@ let sessionId = generateSessionId();
         let selectedTexts = [];
 
         const startTime = new Date();
-
-        // Generate a unique session ID for each visit
-        function generateSessionId() {
-            return '_' + Math.random().toString(36).substr(2, 9);
-        }
 
         // Track navbar button clicks
         document.getElementById("homeButton").addEventListener("click", () => {
@@ -259,7 +254,7 @@ let sessionId = generateSessionId();
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ sessionId, selectedText })
+                    body: JSON.stringify({ selectedText })
                 })
                 .then(response => response.json())
                 .then(data => console.log("Text selection saved:", data))

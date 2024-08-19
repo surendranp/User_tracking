@@ -25,7 +25,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    sessionId: { type: String, unique: true },
+    sessionId: String,
     startTime: Date,
     endTime: Date,
     duration: Number,
@@ -43,7 +43,6 @@ const visitSchema = new mongoose.Schema({
 const Visit = mongoose.model("Visit", visitSchema);
 
 const textSelectionSchema = new mongoose.Schema({
-    sessionId: String,
     selectedText: String,
     timestamp: { type: Date, default: Date.now }
 });
@@ -71,43 +70,16 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        const visit = await Visit.findOne({ sessionId });
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId },
+            {
+                $set: { endTime: new Date(endTime), duration, clickCount, textSelections, selectedTexts },
+                $inc: { contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks }
+            },
+            { new: true, upsert: true } // Update if exists, create if not
+        );
 
-        if (visit) {
-            // Update existing visit document
-            visit.endTime = new Date(endTime);
-            visit.duration = duration;
-            visit.clickCount = clickCount;
-            visit.contactClicks = contactClicks;
-            visit.whatsappClicks = whatsappClicks;
-            visit.viewMoreClicks = viewMoreClicks;
-            visit.homeClicks = homeClicks;
-            visit.aboutClicks = aboutClicks;
-            visit.contactNavClicks = contactNavClicks;
-            visit.textSelections = textSelections;
-            visit.selectedTexts = selectedTexts;
-            await visit.save();
-        } else {
-            // Create a new visit document
-            const newVisit = new Visit({
-                sessionId,
-                startTime: new Date(startTime),
-                endTime: new Date(endTime),
-                duration,
-                clickCount,
-                contactClicks,
-                whatsappClicks,
-                viewMoreClicks,
-                homeClicks,
-                aboutClicks,
-                contactNavClicks,
-                textSelections,
-                selectedTexts
-            });
-            await newVisit.save();
-        }
-
-        res.status(200).json({ message: "Visit data saved successfully" });
+        res.status(200).json({ message: "Visit data saved successfully", visit });
     } catch (err) {
         console.error("Error saving visit:", err);
         res.status(500).json({ error: "Failed to save visit data" });
@@ -118,10 +90,9 @@ app.post("/api/save-visit", async (req, res) => {
 app.post("/api/save-text-selection", async (req, res) => {
     console.log("Received text selection data:", req.body); // Debugging line
 
-    const { sessionId, selectedText } = req.body;
+    const { selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
-        sessionId,
         selectedText
     });
 
