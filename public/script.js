@@ -66,6 +66,20 @@ window.addEventListener("beforeunload", (event) => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
+    console.log("Sending visit data:", {
+        startTime,
+        endTime,
+        duration,
+        clickCount,
+        contactClicks,
+        whatsappClicks,
+        viewMoreClicks,
+        homeClicks,
+        aboutClicks,
+        contactNavClicks,
+        textSelections
+    });
+
     // Save visit data to the server
     navigator.sendBeacon("/api/save-visit", JSON.stringify({
         startTime,

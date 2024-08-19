@@ -55,6 +55,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
+    console.log("Received visit data:", req.body);  // Log the received data
     const { startTime, endTime, duration, clickCount, contactClicks, whatsappClicks, viewMoreClicks, homeClicks, aboutClicks, contactNavClicks, textSelections } = req.body;
 
     const newVisit = new Visit({
@@ -73,6 +74,7 @@ app.post("/api/save-visit", async (req, res) => {
 
     try {
         await newVisit.save();
+        console.log("Visit data saved successfully");
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
