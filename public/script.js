@@ -4,8 +4,8 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve click counters
-let visitData = JSON.parse(localStorage.getItem("visitData")) || {
+// Initialize click counters
+let visitData = {
     sessionId: sessionId,
     clickCount: 0,
     whatsappClicks: 0,
@@ -18,14 +18,15 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     qualityClick: 0,
     CareerClick: 0,
     QuoteClick: 0,
-    productClick: 0
+    productClick: 0,
+    textSelections: 0,
+    selectedTexts: []
 };
 
 // Function to update visit data
 function updateVisitData(key) {
     visitData[key]++;
     visitData.clickCount++;
-    localStorage.setItem("visitData", JSON.stringify(visitData));
     saveVisitData();
 }
 
@@ -55,6 +56,27 @@ document.querySelector(".CareerButton").addEventListener("click", () => updateVi
 document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
 document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
 document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+
+// Track text selections
+document.addEventListener("mouseup", () => {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText) {
+        visitData.textSelections++;
+        visitData.selectedTexts.push(selectedText);
+
+        // Save text selection data
+        fetch("/api/save-text-selection", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sessionId, selectedText })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Text selection saved:", data))
+        .catch(error => console.error("Error saving text selection:", error));
+    }
+});
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
