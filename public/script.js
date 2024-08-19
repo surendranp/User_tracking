@@ -30,8 +30,10 @@ function generateSessionId() {
 
 // Function to update visit data
 function updateVisitData(key) {
-    visitData[key]++;
-    visitData.clickCount++;
+    if (visitData[key] !== undefined) {
+        visitData[key]++;
+        visitData.clickCount++;
+    }
 }
 
 // Function to save visit data to the server
@@ -49,49 +51,28 @@ function saveVisitData() {
 }
 
 // Button click event listeners
-document.querySelector(".homeButton")?.addEventListener("click", () => {
-    updateVisitData('homeClicks');
-    saveVisitData();
-});
-document.querySelector(".aboutButton")?.addEventListener("click", () => {
-    updateVisitData('aboutClicks');
-    saveVisitData();
-});
-document.querySelector(".contactNavButton")?.addEventListener("click", () => {
-    updateVisitData('contactNavClicks');
-    saveVisitData();
-});
-document.querySelector(".paverButton")?.addEventListener("click", () => {
-    updateVisitData('paverClick');
-    saveVisitData();
-});
-document.querySelector(".hollowButton")?.addEventListener("click", () => {
-    updateVisitData('holloClick');
-    saveVisitData();
-});
-document.querySelector(".flyashButton")?.addEventListener("click", () => {
-    updateVisitData('flyashClick');
-    saveVisitData();
-});
-document.querySelector(".qualityButton")?.addEventListener("click", () => {
-    updateVisitData('qualityClick');
-    saveVisitData();
-});
-document.querySelector(".CareerButton")?.addEventListener("click", () => {
-    updateVisitData('CareerClick');
-    saveVisitData();
-});
-document.querySelector(".QuoteButton")?.addEventListener("click", () => {
-    updateVisitData('QuoteClick');
-    saveVisitData();
-});
-document.querySelector(".productButton")?.addEventListener("click", () => {
-    updateVisitData('productClick');
-    saveVisitData();
-});
-document.querySelector(".whatsappButton")?.addEventListener("click", () => {
-    updateVisitData('whatsappClicks');
-    saveVisitData();
+const buttons = {
+    homeButton: 'homeClicks',
+    aboutButton: 'aboutClicks',
+    contactNavButton: 'contactNavClicks',
+    paverButton: 'paverClick',
+    hollowButton: 'holloClick',
+    flyashButton: 'flyashClick',
+    qualityButton: 'qualityClick',
+    CareerButton: 'CareerClick',
+    QuoteButton: 'QuoteClick',
+    productButton: 'productClick',
+    whatsappButton: 'whatsappClicks'
+};
+
+Object.keys(buttons).forEach(buttonClass => {
+    const button = document.querySelector(`.${buttonClass}`);
+    if (button) {
+        button.addEventListener("click", () => {
+            updateVisitData(buttons[buttonClass]);
+            saveVisitData();
+        });
+    }
 });
 
 // Track text selections
@@ -116,4 +97,6 @@ document.addEventListener("mouseup", () => {
 });
 
 // Save visit data when the page is unloaded
-window.addEventListener("beforeunload", saveVisitData);
+window.addEventListener("beforeunload", () => {
+    saveVisitData();
+});
