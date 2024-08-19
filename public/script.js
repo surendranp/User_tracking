@@ -6,6 +6,7 @@ let sessionId = generateSessionId();
         let homeClicks = 0;
         let aboutClicks = 0;
         let contactNavClicks = 0;
+        let paverClick =0;
         let textSelections = 0;
         let selectedTexts = [];
 
@@ -28,6 +29,10 @@ let sessionId = generateSessionId();
         });
 
         document.getElementById("contactNavButton").addEventListener("click", () => {
+            contactNavClicks++;
+            clickCount++;
+        });
+        document.getElementById("paverButton").addEventListener("click", () => {
             contactNavClicks++;
             clickCount++;
         });
@@ -92,6 +97,7 @@ let sessionId = generateSessionId();
                     homeClicks,
                     aboutClicks,
                     contactNavClicks,
+                    paverClick,
                     textSelections,
                     selectedTexts
                 })
