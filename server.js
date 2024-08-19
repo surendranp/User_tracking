@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    sessionId: String,
+    sessionId: { type: String, unique: true },
     clickCount: Number,
     whatsappClicks: Number,
     homeClicks: Number,
@@ -37,7 +37,7 @@ const visitSchema = new mongoose.Schema({
     QuoteClick: Number,
     productClick: Number,
     textSelections: Number,
-    selectedTexts: [String] // Store selected texts as an array of strings
+    selectedTexts: [String]
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -70,27 +70,31 @@ app.post("/api/save-visit", async (req, res) => {
         selectedTexts
     } = req.body;
 
-    try {
-        // Create a new visit document for each session
-        const newVisit = new Visit({
-            sessionId,
-            clickCount,
-            whatsappClicks,
-            homeClicks,
-            aboutClicks,
-            contactNavClicks,
-            paverClick,
-            holloClick,
-            flyashClick,
-            qualityClick,
-            CareerClick,
-            QuoteClick,
-            productClick,
-            textSelections,
-            selectedTexts
-        });
+    console.log("Received visit data:", req.body); // Debugging line
 
-        await newVisit.save();
+    try {
+        // Create or update the visit document for each session
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId },
+            {
+                clickCount,
+                whatsappClicks,
+                homeClicks,
+                aboutClicks,
+                contactNavClicks,
+                paverClick,
+                holloClick,
+                flyashClick,
+                qualityClick,
+                CareerClick,
+                QuoteClick,
+                productClick,
+                textSelections,
+                selectedTexts
+            },
+            { new: true, upsert: true } // Upsert option creates a new document if none is found
+        );
+
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
