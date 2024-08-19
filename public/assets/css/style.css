@@ -6831,7 +6831,7 @@ padding: 30px 15px 40px 30px;
     bottom: 20%;
     right: .5%;
     width: 60px;
-    z-index: 999;
+    z-index: 1000000;
     border: 2px solid #18970e;
     border-radius: 50px;
     height: 60px;
