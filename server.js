@@ -35,10 +35,20 @@ const visitSchema = new mongoose.Schema({
     qualityClick: Number,
     CareerClick: Number,
     QuoteClick: Number,
-    productClick: Number
+    productClick: Number,
+    textSelections: Number,
+    selectedTexts: [String]
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
+
+const textSelectionSchema = new mongoose.Schema({
+    sessionId: String,
+    selectedText: String,
+    timestamp: { type: Date, default: Date.now }
+});
+
+const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
@@ -55,7 +65,9 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
-        productClick
+        productClick,
+        textSelections,
+        selectedTexts
     } = req.body;
 
     try {
@@ -75,6 +87,8 @@ app.post("/api/save-visit", async (req, res) => {
             visit.CareerClick = CareerClick;
             visit.QuoteClick = QuoteClick;
             visit.productClick = productClick;
+            visit.textSelections = textSelections;
+            visit.selectedTexts = selectedTexts;
         } else {
             // Create a new visit document
             visit = new Visit({
@@ -90,7 +104,9 @@ app.post("/api/save-visit", async (req, res) => {
                 qualityClick,
                 CareerClick,
                 QuoteClick,
-                productClick
+                productClick,
+                textSelections,
+                selectedTexts
             });
         }
 
@@ -99,6 +115,24 @@ app.post("/api/save-visit", async (req, res) => {
     } catch (err) {
         console.error("Error saving visit:", err);
         res.status(500).json({ error: "Failed to save visit data" });
+    }
+});
+
+// API Endpoint to Save Text Selection Data
+app.post("/api/save-text-selection", async (req, res) => {
+    const { sessionId, selectedText } = req.body;
+
+    const newTextSelection = new TextSelection({
+        sessionId,
+        selectedText
+    });
+
+    try {
+        await newTextSelection.save();
+        res.status(200).json({ message: "Text selection saved successfully" });
+    } catch (err) {
+        console.error("Error saving text selection:", err);
+        res.status(500).json({ error: "Failed to save text selection data" });
     }
 });
 
