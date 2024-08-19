@@ -74,17 +74,17 @@ function handleTextSelection() {
 }
 
 // Button click event listeners
-document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
-document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
-document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
-document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
-document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
-document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
-document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
-document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
-document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
-document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
-document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+document.querySelector(".homeButton")?.addEventListener("click", () => updateVisitData('homeClicks'));
+document.querySelector(".aboutButton")?.addEventListener("click", () => updateVisitData('aboutClicks'));
+document.querySelector(".contactNavButton")?.addEventListener("click", () => updateVisitData('contactNavClicks'));
+document.querySelector(".paverButton")?.addEventListener("click", () => updateVisitData('paverClick'));
+document.querySelector(".hollowButton")?.addEventListener("click", () => updateVisitData('holloClick'));
+document.querySelector(".flyashButton")?.addEventListener("click", () => updateVisitData('flyashClick'));
+document.querySelector(".qualityButton")?.addEventListener("click", () => updateVisitData('qualityClick'));
+document.querySelector(".CareerButton")?.addEventListener("click", () => updateVisitData('CareerClick'));
+document.querySelector(".QuoteButton")?.addEventListener("click", () => updateVisitData('QuoteClick'));
+document.querySelector(".productButton")?.addEventListener("click", () => updateVisitData('productClick'));
+document.querySelector(".whatsappButton")?.addEventListener("click", () => updateVisitData('whatsappClicks'));
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
