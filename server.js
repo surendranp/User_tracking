@@ -3,7 +3,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,8 +40,8 @@ const visitSchema = new mongoose.Schema({
     QuoteClick: Number,
     productClick: Number,
     textSelections: Number,
-    selectedTexts: [String] // Store selected texts as an array of strings
-});
+    selectedTexts: [String]
+}, { timestamps: true });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
@@ -80,30 +79,53 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        const visit = await Visit.findOneAndUpdate(
-            { sessionId }, // Find the document with the same sessionId
-            {
-                $set: { 
-                    endTime: new Date(endTime),
-                    duration,
-                    clickCount,
-                    whatsappClicks,
-                    homeClicks,
-                    aboutClicks,
-                    contactNavClicks,
-                    paverClick,
-                    holloClick,
-                    flyashClick,
-                    qualityClick,
-                    CareerClick,
-                    QuoteClick,
-                    productClick,
-                    textSelections,
-                    selectedTexts
-                }
-            },
-            { upsert: true, new: true } // If not found, create a new document
-        );
+        let visit = await Visit.findOne({ sessionId });
+
+        if (visit) {
+            // Update existing visit document
+            visit.endTime = new Date(endTime);
+            visit.duration = duration;
+            visit.clickCount = clickCount;
+            visit.whatsappClicks = whatsappClicks;
+            visit.homeClicks = homeClicks;
+            visit.aboutClicks = aboutClicks;
+            visit.contactNavClicks = contactNavClicks;
+            visit.paverClick = paverClick;
+            visit.holloClick = holloClick;
+            visit.flyashClick = flyashClick;
+            visit.qualityClick = qualityClick;
+            visit.CareerClick = CareerClick;
+            visit.QuoteClick = QuoteClick;
+            visit.productClick = productClick;
+            visit.textSelections = textSelections;
+            visit.selectedTexts = selectedTexts;
+
+            // Save the document with options to overwrite the version
+            await visit.save({ validateModifiedOnly: true });
+        } else {
+            // Create a new visit document
+            const newVisit = new Visit({
+                sessionId,
+                startTime: new Date(startTime),
+                endTime: new Date(endTime),
+                duration,
+                clickCount,
+                whatsappClicks,
+                homeClicks,
+                aboutClicks,
+                contactNavClicks,
+                paverClick,
+                holloClick,
+                flyashClick,
+                qualityClick,
+                CareerClick,
+                QuoteClick,
+                productClick,
+                textSelections,
+                selectedTexts
+            });
+            await newVisit.save();
+        }
 
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
@@ -132,49 +154,8 @@ app.post("/api/save-text-selection", async (req, res) => {
     }
 });
 
-// Routes to serve HTML pages
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get("/about", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'about.html'));
-});
-
-app.get("/contact", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'contact.html'));
-});
-
-// API Endpoint to Track Navbar Button Clicks
-app.post("/api/track-button-click", async (req, res) => {
-    console.log("Received button click data:", req.body); // Debugging line
-
-    const { sessionId, buttonName } = req.body;
-
-    try {
-        const update = {};
-        if (buttonName === "home") {
-            update.homeClicks = 1;
-        } else if (buttonName === "about") {
-            update.aboutClicks = 1;
-        } else if (buttonName === "contact") {
-            update.contactNavClicks = 1;
-        }
-
-        const visit = await Visit.findOneAndUpdate(
-            { sessionId },
-            { $inc: update },
-            { upsert: true, new: true } // If not found, create a new document
-        );
-
-        res.status(200).json({ message: `${buttonName} button click tracked successfully` });
-    } catch (err) {
-        console.error("Error tracking button click:", err);
-        res.status(500).json({ error: "Failed to track button click" });
-    }
-});
-
 // Start the Server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+ 

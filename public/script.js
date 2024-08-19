@@ -1,13 +1,4 @@
-// Generate a unique session ID for each visit
-function generateSessionId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
-
-let sessionId = localStorage.getItem("sessionId") || generateSessionId();
-if (!localStorage.getItem("sessionId")) {
-    localStorage.setItem("sessionId", sessionId);
-}
-
+let sessionId = generateSessionId();
 let clickCount = 0;
 let whatsappClicks = 0;
 let homeClicks = 0;
@@ -25,30 +16,66 @@ let selectedTexts = [];
 
 const startTime = new Date();
 
-// Track navbar button clicks and redirect to specific pages
-function trackClick(buttonClass, clickVariable, url) {
-    document.querySelector(buttonClass)?.addEventListener("click", () => {
-        clickVariable++;
-        clickCount++;
-        window.location.href = url;
-    });
+// Generate a unique session ID for each visit
+function generateSessionId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-trackClick(".homeButton", homeClicks, "/home.html");
-trackClick(".aboutButton", aboutClicks, "/about.html");
-trackClick(".contactNavButton", contactNavClicks, "/contact.html");
-trackClick(".paverButton", paverClick, "/paver.html");
-trackClick(".hollowButton", holloClick, "/hollow.html");
-trackClick(".flyashButton", flyashClick, "/flyash.html");
-trackClick(".qualityButton", qualityClick, "/quality.html");
-trackClick(".CareerButton", CareerClick, "/career.html");
-trackClick(".QuoteButton", QuoteClick, "/quote.html");
-trackClick(".productButton", productClick, "/product.html");
+// Track navbar button clicks
+document.querySelector(".homeButton").addEventListener("click", () => {
+    homeClicks++;
+    clickCount++;
+    // Optionally, you can save the data immediately or use a debounce function
+});
 
-document.querySelector(".whatsappButton")?.addEventListener("click", () => {
+document.querySelector(".aboutButton").addEventListener("click", () => {
+    aboutClicks++;
+    clickCount++;
+});
+
+document.querySelector(".contactNavButton").addEventListener("click", () => {
+    contactNavClicks++;
+    clickCount++;
+});
+
+document.querySelector(".paverButton").addEventListener("click", () => {
+    paverClick++;
+    clickCount++;
+});
+
+document.querySelector(".hollowButton").addEventListener("click", () => {
+    holloClick++;
+    clickCount++;
+});
+
+document.querySelector(".flyashButton").addEventListener("click", () => {
+    flyashClick++;
+    clickCount++;
+});
+
+document.querySelector(".qualityButton").addEventListener("click", () => {
+    qualityClick++;
+    clickCount++;
+});
+
+document.querySelector(".CareerButton").addEventListener("click", () => {
+    CareerClick++;
+    clickCount++;
+});
+
+document.querySelector(".QuoteButton").addEventListener("click", () => {
+    QuoteClick++;
+    clickCount++;
+});
+
+document.querySelector(".productButton").addEventListener("click", () => {
+    productClick++;
+    clickCount++;
+});
+
+document.querySelector(".whatsappButton").addEventListener("click", () => {
     whatsappClicks++;
     clickCount++;
-    window.location.href = "https://api.whatsapp.com/send?phone=YOUR_PHONE_NUMBER";
 });
 
 // Track text selections
