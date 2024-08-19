@@ -42,6 +42,7 @@ const visitSchema = new mongoose.Schema({
     qualityClick: Number,
     CareerClick: Number,
     QuoteClick:Number,
+    productClick:Number,
     textSelections: Number,
     selectedTexts: [String] // Store selected texts as an array of strings
 });
@@ -78,6 +79,7 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
+        productClick,
         textSelections,
         selectedTexts
     } = req.body;
@@ -102,6 +104,7 @@ app.post("/api/save-visit", async (req, res) => {
             visit.qualityClick=qualityClick;
             visit.CareerClick=CareerClick;
             visit.QuoteClick=QuoteClick;
+            visit.productClick=productClick;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
             await visit.save();
@@ -125,6 +128,7 @@ app.post("/api/save-visit", async (req, res) => {
                 qualityClick,
                 CareerClick,
                 QuoteClick,
+                productClick,
                 textSelections,
                 selectedTexts
             });

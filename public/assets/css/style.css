@@ -1166,9 +1166,7 @@ Table of Content:
     line-height: 26px;
     margin-bottom: 0;
 }
-.contact-box{
-    
-}
+
  .technologies .simple-text p {
      padding-bottom: 50px;
 }
@@ -1422,8 +1420,7 @@ Table of Content:
  .portfolio-sorting.list-inline>li:hover a{
      color:#fff;
 }
- .portfolio-sorting.list-inline>li:hover a.active{
-}
+
  .portfolio-sorting.list-inline>li:last-child {
      margin-right: 0;
 }
@@ -1584,7 +1581,7 @@ Table of Content:
 }
  .client_carousel_01 .item {
      height: auto;
-     vertical-align: middle;
+     /* vertical-align: middle; */
      display: block;
      margin-top:25px;
 }
@@ -2121,7 +2118,7 @@ Table of Content:
      background: #fff ;
      border:2px solid #8d97ad;
      display: block;
-     -webkit-backface-visibility: visible;
+     /* -webkit-backface-visibility: visible; */
      transition: opacity .2s ease;
      border-radius: 30px;
      float: none;
@@ -3802,7 +3799,7 @@ z-index: 1;
 .Recent_Post .image{
 
 	width:78px;
-	float:left;
+	/* float:left; */
 	display:inline-block;
 }
 .Recent_Post1{
@@ -3810,7 +3807,7 @@ z-index: 1;
     padding-left: 15px;
     width: auto;
     display: inline-block;
-    float: left;
+    /* float: left; */
 }
 
 .Recent_Post1 h5{
@@ -4104,7 +4101,7 @@ z-index: 1;
 	margin-top:25px;
 }
 .three-comment .three-comment_1 .comment_img{
-	float:left;
+	/* float:left; */
 	display:inline-block;
 	padding-bottom:20px;
 	padding-right:20px;
@@ -4607,7 +4604,7 @@ z-index: 1;
 .shop_post .shoptag_space_top h4{
 	color:#2c2034;
 }
-$input-number-size: 80px;
+/* $input-number-size: 80px; */
 
 .input-number-group {
   display: flex;
@@ -4618,14 +4615,12 @@ $input-number-size: 80px;
     appearance: none;
   }
 
-  .input-group-button {
-    line-height: calc(#{$input-number-size}/2 - 5px);
-  }
+
 
   .input-number {
-    width: $input-number-size;
+    /* width: $input-number-size; */
     padding: 0 12px;
-    vertical-align: top;
+    /* vertical-align: top; */
     text-align: center;
     outline: none;
     display: block;
@@ -4636,22 +4631,22 @@ $input-number-size: 80px;
   .input-number-decrement,
   .input-number-increment {
   
-    height: $input-number-size/2;
+    /* height: $input-number-size/2; */
     user-select: none;
-    border-radius: $global-radius;
+    /* border-radius: $global-radius; */
   }
 
   .input-number-decrement,
   .input-number-increment {
     display: inline-block;
-    width: $input-number-size/2;
-    background: $light-gray;
-    color: $body-font-color;
-    text-align: center;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 2rem;
-    font-weight: 400;
+    /* width: $input-number-size/2; */
+    /* background: $light-gray; */
+    /* color: $body-font-color; */
+    /* text-align: center; */
+    /* font-weight: bold; */
+    /* cursor: pointer; */
+    /* font-size: 2rem; */
+    /* font-weight: 400; */
   }
   .input-number-decrement {
     margin-right: 0.3rem;
@@ -5125,7 +5120,7 @@ $input-number-size: 80px;
      margin-right: 22px;
      height: 55px;
      display: inline-block;
-     float: left;
+     /* float: left; */
      width: 100%;
      padding-left: 20px;
      font-size: 17px;
@@ -5630,7 +5625,7 @@ $input-number-size: 80px;
 }
  .service-tab-box .tab-menu li {
      display: inline-block;
-     float: left;
+     /* float: left; */
      margin-bottom: 0px;
      margin-right: 3px;
 }
@@ -5667,8 +5662,7 @@ $input-number-size: 80px;
      padding: 29px 20px 20px;
      display: block;
 }
- .service-tab-box .tab-content-box .single-tab-content{
-}
+
  .service-tab-box .tab-content-box .single-tab-content .top-content {
      margin-bottom: 10px;
 }
@@ -5689,8 +5683,7 @@ $input-number-size: 80px;
  .service-tab-box .tab-content-box .single-tab-content .bottom-content .title h3 {
      font-size: 20px;
 }
- .service-tab-box .tab-content-box .single-tab-content .bottom-content ul {
-}
+
  .service-tab-box .tab-content-box .single-tab-content .bottom-content ul.left{
      margin-right: 50px;
 }
@@ -6284,9 +6277,7 @@ $input-number-size: 80px;
 .services_04 .simple-text2 p{
 	text-align:center;
 }
-.request_A_quote_04{
-	/*margin-top:80px;*/
-}
+
 .our_customer_saying_04{
 	margin-top:100px;
 	background:url(../images/home4/customers_saying.jpg);
@@ -6359,9 +6350,7 @@ padding: 30px 15px 40px 30px;
 	top: -164px;
 	right: -50px;
 }
-.our_customer_saying_04{
-	
-}
+
 /*-----------------------------------------------------------------------------------------*/
 /* - Home Page 5 Css */
 /*-----------------------------------------------------------------------------------------*/

@@ -12,6 +12,7 @@ let sessionId = generateSessionId();
         let qualityClick=0;
         let CareerClick=0;
         let QuoteClick=0;
+        let productClick=0;
         let textSelections = 0;
         let selectedTexts = [];
 
@@ -63,6 +64,11 @@ let sessionId = generateSessionId();
         
         document.querySelector(".QuoteButton").addEventListener("click", () => {
             QuoteClick++;
+            clickCount++;
+        });
+        
+        document.querySelector(".productButton").addEventListener("click", () => {
+            productClick++;
             clickCount++;
         });
         // Track other button clicks
@@ -132,6 +138,7 @@ let sessionId = generateSessionId();
                     qualityClick,
                     CareerClick,
                     QuoteClick,
+                    productClick,
                     textSelections,
                     selectedTexts
                 })
