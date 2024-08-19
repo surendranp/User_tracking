@@ -1,10 +1,15 @@
+// Function to generate a unique session ID
+function generateSessionId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
 // Initialize or retrieve the session ID
 let sessionId = localStorage.getItem("sessionId") || generateSessionId();
 if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve click counters
+// Initialize or retrieve visit data
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     sessionId: sessionId,
     clickCount: 0,
@@ -22,11 +27,6 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     textSelections: 0,
     selectedTexts: []
 };
-
-// Function to generate a unique session ID
-function generateSessionId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}
 
 // Function to update visit data
 function updateVisitData(key) {
