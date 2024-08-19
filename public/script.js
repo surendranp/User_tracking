@@ -1,15 +1,12 @@
-// Function to generate a unique session ID
 function generateSessionId() {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-// Initialize or retrieve the session ID
 let sessionId = localStorage.getItem("sessionId") || generateSessionId();
 if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve visit data
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     sessionId: sessionId,
     clickCount: 0,
@@ -28,15 +25,14 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     selectedTexts: []
 };
 
-// Function to update visit data
 function updateVisitData(key) {
     visitData[key]++;
     visitData.clickCount++;
     localStorage.setItem("visitData", JSON.stringify(visitData));
+    console.log('Updated visit data:', visitData);  // Debug log
     saveVisitData();
 }
 
-// Function to save visit data to the server
 function saveVisitData() {
     fetch("/api/save-visit", {
         method: "POST",
@@ -50,16 +46,13 @@ function saveVisitData() {
     .catch(error => console.error("Error saving visit data:", error));
 }
 
-// Function to handle text selection
 function handleTextSelection() {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText) {
         visitData.textSelections++;
         visitData.selectedTexts.push(selectedText);
         localStorage.setItem("visitData", JSON.stringify(visitData));
-
-        console.log("Selected text:", selectedText);
-
+        console.log('Selected text:', selectedText);  // Debug log
         fetch("/api/save-text-selection", {
             method: "POST",
             headers: {
@@ -73,7 +66,6 @@ function handleTextSelection() {
     }
 }
 
-// Button click event listeners
 document.querySelector(".homeButton")?.addEventListener("click", () => updateVisitData('homeClicks'));
 document.querySelector(".aboutButton")?.addEventListener("click", () => updateVisitData('aboutClicks'));
 document.querySelector(".contactNavButton")?.addEventListener("click", () => updateVisitData('contactNavClicks'));
@@ -86,8 +78,5 @@ document.querySelector(".QuoteButton")?.addEventListener("click", () => updateVi
 document.querySelector(".productButton")?.addEventListener("click", () => updateVisitData('productClick'));
 document.querySelector(".whatsappButton")?.addEventListener("click", () => updateVisitData('whatsappClicks'));
 
-// Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
-
-// Track text selections
 document.addEventListener("mouseup", handleTextSelection);

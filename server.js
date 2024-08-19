@@ -7,12 +7,10 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -23,7 +21,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
     console.error("Connection error:", err);
 });
 
-// Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
     clickCount: Number,
@@ -52,8 +49,8 @@ const textSelectionSchema = new mongoose.Schema({
 
 const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
-// API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
+    console.log('Received visit data:', req.body);  // Debug log
     const {
         sessionId,
         clickCount,
@@ -76,7 +73,6 @@ app.post("/api/save-visit", async (req, res) => {
         let visit = await Visit.findOne({ sessionId });
 
         if (visit) {
-            // Update existing visit document
             visit.clickCount = clickCount;
             visit.whatsappClicks = whatsappClicks;
             visit.homeClicks = homeClicks;
@@ -92,7 +88,6 @@ app.post("/api/save-visit", async (req, res) => {
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
         } else {
-            // Create a new visit document
             visit = new Visit({
                 sessionId,
                 clickCount,
@@ -120,8 +115,8 @@ app.post("/api/save-visit", async (req, res) => {
     }
 });
 
-// API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
+    console.log('Received text selection:', req.body);  // Debug log
     const { sessionId, selectedText } = req.body;
 
     const newTextSelection = new TextSelection({
@@ -138,7 +133,6 @@ app.post("/api/save-text-selection", async (req, res) => {
     }
 });
 
-// Start the Server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
