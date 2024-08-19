@@ -6,6 +6,7 @@ if (!localStorage.getItem("sessionId")) {
 
 // Initialize or retrieve click counters
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
+    sessionId: sessionId,
     clickCount: 0,
     whatsappClicks: 0,
     homeClicks: 0,
@@ -25,6 +26,7 @@ function updateVisitData(key) {
     visitData[key]++;
     visitData.clickCount++;
     localStorage.setItem("visitData", JSON.stringify(visitData));
+    saveVisitData();
 }
 
 // Function to save visit data to the server
@@ -34,10 +36,7 @@ function saveVisitData() {
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            sessionId,
-            ...visitData
-        })
+        body: JSON.stringify(visitData)
     })
     .then(response => response.json())
     .then(data => console.log('Visit data saved:', data))

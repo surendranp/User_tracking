@@ -59,7 +59,7 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        const visit = await Visit.findOne({ sessionId });
+        let visit = await Visit.findOne({ sessionId });
 
         if (visit) {
             // Update existing visit document
@@ -75,10 +75,9 @@ app.post("/api/save-visit", async (req, res) => {
             visit.CareerClick = CareerClick;
             visit.QuoteClick = QuoteClick;
             visit.productClick = productClick;
-            await visit.save();
         } else {
             // Create a new visit document
-            const newVisit = new Visit({
+            visit = new Visit({
                 sessionId,
                 clickCount,
                 whatsappClicks,
@@ -93,9 +92,9 @@ app.post("/api/save-visit", async (req, res) => {
                 QuoteClick,
                 productClick
             });
-            await newVisit.save();
         }
 
+        await visit.save();
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
