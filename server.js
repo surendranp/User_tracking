@@ -24,9 +24,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    startTime: Date,
-    endTime: Date,
-    duration: Number,
     clickCount: Number,
     whatsappClicks: Number,
     homeClicks: Number,
@@ -40,28 +37,15 @@ const visitSchema = new mongoose.Schema({
     QuoteClick: Number,
     productClick: Number,
     textSelections: Number,
-    selectedTexts: [String] // Store selected texts as an array of strings
+    selectedTexts: [String]
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
-const textSelectionSchema = new mongoose.Schema({
-    sessionId: String,
-    selectedText: String,
-    timestamp: { type: Date, default: Date.now }
-});
-
-const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
-
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Debugging line
-
     const {
         sessionId,
-        startTime,
-        endTime,
-        duration,
         clickCount,
         whatsappClicks,
         homeClicks,
@@ -83,8 +67,6 @@ app.post("/api/save-visit", async (req, res) => {
 
         if (visit) {
             // Update existing visit document
-            visit.endTime = new Date(endTime);
-            visit.duration = duration;
             visit.clickCount = clickCount;
             visit.whatsappClicks = whatsappClicks;
             visit.homeClicks = homeClicks;
@@ -104,9 +86,6 @@ app.post("/api/save-visit", async (req, res) => {
             // Create a new visit document
             const newVisit = new Visit({
                 sessionId,
-                startTime: new Date(startTime),
-                endTime: new Date(endTime),
-                duration,
                 clickCount,
                 whatsappClicks,
                 homeClicks,
@@ -129,26 +108,6 @@ app.post("/api/save-visit", async (req, res) => {
     } catch (err) {
         console.error("Error saving visit:", err);
         res.status(500).json({ error: "Failed to save visit data" });
-    }
-});
-
-// API Endpoint to Save Text Selection Data
-app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body); // Debugging line
-
-    const { sessionId, selectedText } = req.body;
-
-    const newTextSelection = new TextSelection({
-        sessionId,
-        selectedText
-    });
-
-    try {
-        await newTextSelection.save();
-        res.status(200).json({ message: "Text selection saved successfully" });
-    } catch (err) {
-        console.error("Error saving text selection:", err);
-        res.status(500).json({ error: "Failed to save text selection data" });
     }
 });
 

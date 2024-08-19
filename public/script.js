@@ -4,51 +4,32 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-let clickCount = parseInt(localStorage.getItem("clickCount")) || 0;
-let whatsappClicks = parseInt(localStorage.getItem("whatsappClicks")) || 0;
-let homeClicks = parseInt(localStorage.getItem("homeClicks")) || 0;
-let aboutClicks = parseInt(localStorage.getItem("aboutClicks")) || 0;
-let contactNavClicks = parseInt(localStorage.getItem("contactNavClicks")) || 0;
-let paverClick = parseInt(localStorage.getItem("paverClick")) || 0;
-let holloClick = parseInt(localStorage.getItem("holloClick")) || 0;
-let flyashClick = parseInt(localStorage.getItem("flyashClick")) || 0;
-let qualityClick = parseInt(localStorage.getItem("qualityClick")) || 0;
-let CareerClick = parseInt(localStorage.getItem("CareerClick")) || 0;
-let QuoteClick = parseInt(localStorage.getItem("QuoteClick")) || 0;
-let productClick = parseInt(localStorage.getItem("productClick")) || 0;
-let textSelections = parseInt(localStorage.getItem("textSelections")) || 0;
-let selectedTexts = JSON.parse(localStorage.getItem("selectedTexts")) || [];
+// Initialize click counters and other variables
+let visitData = {
+    clickCount: 0,
+    whatsappClicks: 0,
+    homeClicks: 0,
+    aboutClicks: 0,
+    contactNavClicks: 0,
+    paverClick: 0,
+    holloClick: 0,
+    flyashClick: 0,
+    qualityClick: 0,
+    CareerClick: 0,
+    QuoteClick: 0,
+    productClick: 0,
+    textSelections: 0,
+    selectedTexts: []
+};
 
-const startTime = new Date();
-
-// Generate a unique session ID for each visit
-function generateSessionId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
+// Function to update visit data
+function updateVisitData(key) {
+    visitData[key]++;
+    visitData.clickCount++;
 }
 
-// Function to update localStorage
-function updateLocalStorage() {
-    localStorage.setItem("clickCount", clickCount);
-    localStorage.setItem("whatsappClicks", whatsappClicks);
-    localStorage.setItem("homeClicks", homeClicks);
-    localStorage.setItem("aboutClicks", aboutClicks);
-    localStorage.setItem("contactNavClicks", contactNavClicks);
-    localStorage.setItem("paverClick", paverClick);
-    localStorage.setItem("holloClick", holloClick);
-    localStorage.setItem("flyashClick", flyashClick);
-    localStorage.setItem("qualityClick", qualityClick);
-    localStorage.setItem("CareerClick", CareerClick);
-    localStorage.setItem("QuoteClick", QuoteClick);
-    localStorage.setItem("productClick", productClick);
-    localStorage.setItem("textSelections", textSelections);
-    localStorage.setItem("selectedTexts", JSON.stringify(selectedTexts));
-}
-
-// Function to update and save interaction data
+// Function to save visit data to the server
 function saveVisitData() {
-    const endTime = new Date();
-    const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
-
     fetch("/api/save-visit", {
         method: "POST",
         headers: {
@@ -56,23 +37,7 @@ function saveVisitData() {
         },
         body: JSON.stringify({
             sessionId,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
-            duration,
-            clickCount,
-            whatsappClicks,
-            homeClicks,
-            aboutClicks,
-            contactNavClicks,
-            paverClick,
-            holloClick,
-            flyashClick,
-            qualityClick,
-            CareerClick,
-            QuoteClick,
-            productClick,
-            textSelections,
-            selectedTexts
+            ...visitData
         })
     })
     .then(response => response.json())
@@ -80,46 +45,25 @@ function saveVisitData() {
     .catch(error => console.error("Error saving visit data:", error));
 }
 
-// Update click tracking
-function handleButtonClick(clickVar, buttonName) {
-    clickVar++;
-    clickCount++;
-    updateLocalStorage();
-    saveVisitData();
-}
-
-// Attach event listeners to buttons
-document.querySelector(".homeButton").addEventListener("click", () => handleButtonClick(homeClicks, "homeClicks"));
-document.querySelector(".aboutButton").addEventListener("click", () => handleButtonClick(aboutClicks, "aboutClicks"));
-document.querySelector(".contactNavButton").addEventListener("click", () => handleButtonClick(contactNavClicks, "contactNavClicks"));
-document.querySelector(".paverButton").addEventListener("click", () => handleButtonClick(paverClick, "paverClick"));
-document.querySelector(".hollowButton").addEventListener("click", () => handleButtonClick(holloClick, "holloClick"));
-document.querySelector(".flyashButton").addEventListener("click", () => handleButtonClick(flyashClick, "flyashClick"));
-document.querySelector(".qualityButton").addEventListener("click", () => handleButtonClick(qualityClick, "qualityClick"));
-document.querySelector(".CareerButton").addEventListener("click", () => handleButtonClick(CareerClick, "CareerClick"));
-document.querySelector(".QuoteButton").addEventListener("click", () => handleButtonClick(QuoteClick, "QuoteClick"));
-document.querySelector(".productButton").addEventListener("click", () => handleButtonClick(productClick, "productClick"));
-document.querySelector(".whatsappButton").addEventListener("click", () => handleButtonClick(whatsappClicks, "whatsappClicks"));
+// Button click event listeners
+document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
+document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
+document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
+document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
+document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
+document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
+document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
+document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
+document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
+document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
+document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
 
 // Track text selections
 document.addEventListener("mouseup", () => {
     const selectedText = window.getSelection().toString().trim();
     if (selectedText) {
-        textSelections++;
-        selectedTexts.push(selectedText);
-        updateLocalStorage();
-
-        // Save text selection data
-        fetch("/api/save-text-selection", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ sessionId, selectedText })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Text selection saved:", data))
-        .catch(error => console.error("Error saving text selection:", error));
+        visitData.textSelections++;
+        visitData.selectedTexts.push(selectedText);
     }
 });
 
