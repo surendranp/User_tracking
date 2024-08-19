@@ -6861,6 +6861,35 @@ padding: 30px 15px 40px 30px;
 .my-float{
 	margin-top:16px;
 }
+/* --------------------- */
+.float-icon {
+ position: fixed;
+    bottom: 20%;
+    right: .5%;
+    width: 60px;
+    z-index: 1000000;
+    border: 2px solid #18970e;
+    border-radius: 50px;
+    height: 60px;
+    background-color: #fff;
+    color:#ffffff;
+    padding: 7px;
+    line-height: 40px;
+    text-align: center;
+    animation: animate 2s infinite 2s;
+  }
+  
+  .my-float {
+    margin-top: 1px;
+    font-size: 30px;
+  }
+  
+  .float-icon:hover {
+    color: Orange;
+    font-size: 30px;
+  }
+/* --------------------------- */
+
   .jellysoft {
     font-family: 'Satisfy', cursive;
     font-size: 18px;
