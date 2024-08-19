@@ -343,6 +343,25 @@
          <!--================ End Footer =================-->
 		 </div>
 <!--js -->
+<script>
+   document.querySelectorAll(".navbar-button").forEach(button => {
+    button.addEventListener("click", function() {
+        const sessionId = getSessionId(); // Replace this with your logic to retrieve the sessionId
+        const buttonName = this.dataset.buttonName; // Assuming buttons have data attributes like data-button-name="home"
+        
+        fetch("/api/track-button-click", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sessionId, buttonName })
+        }).then(response => response.json())
+          .then(data => console.log(data.message))
+          .catch(error => console.error("Error tracking button click:", error));
+    });
+});
+
+</script>
 <script src="script.js"></script>
 <script src="assets/js/jquery.min.js"></script>
       <script src="assets/js/jquery.shuffle.min.js"></script>

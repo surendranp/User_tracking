@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -128,6 +129,48 @@ app.post("/api/save-text-selection", async (req, res) => {
     } catch (err) {
         console.error("Error saving text selection:", err);
         res.status(500).json({ error: "Failed to save text selection data" });
+    }
+});
+
+// Routes to serve HTML pages
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get("/about", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'about.html'));
+});
+
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'contact.html'));
+});
+
+// API Endpoint to Track Navbar Button Clicks
+app.post("/api/track-button-click", async (req, res) => {
+    console.log("Received button click data:", req.body); // Debugging line
+
+    const { sessionId, buttonName } = req.body;
+
+    try {
+        const update = {};
+        if (buttonName === "home") {
+            update.homeClicks = 1;
+        } else if (buttonName === "about") {
+            update.aboutClicks = 1;
+        } else if (buttonName === "contact") {
+            update.contactNavClicks = 1;
+        }
+
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId },
+            { $inc: update },
+            { upsert: true, new: true } // If not found, create a new document
+        );
+
+        res.status(200).json({ message: `${buttonName} button click tracked successfully` });
+    } catch (err) {
+        console.error("Error tracking button click:", err);
+        res.status(500).json({ error: "Failed to track button click" });
     }
 });
 
