@@ -36,6 +36,7 @@ const visitSchema = new mongoose.Schema({
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
+    paverClick: Number,
     textSelections: Number,
     selectedTexts: [String] // Store selected texts as an array of strings
 });
@@ -66,6 +67,7 @@ app.post("/api/save-visit", async (req, res) => {
         homeClicks,
         aboutClicks,
         contactNavClicks,
+        paverClick,
         textSelections,
         selectedTexts
     } = req.body;
@@ -84,6 +86,7 @@ app.post("/api/save-visit", async (req, res) => {
             visit.homeClicks = homeClicks;
             visit.aboutClicks = aboutClicks;
             visit.contactNavClicks = contactNavClicks;
+            visit.paverClick= paverClick;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
             await visit.save();
@@ -101,6 +104,7 @@ app.post("/api/save-visit", async (req, res) => {
                 homeClicks,
                 aboutClicks,
                 contactNavClicks,
+                paverClick,
                 textSelections,
                 selectedTexts
             });

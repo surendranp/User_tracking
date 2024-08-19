@@ -32,8 +32,8 @@ let sessionId = generateSessionId();
             contactNavClicks++;
             clickCount++;
         });
-        document.getElementById("paverButton").addEventListener("click", () => {
-            contactNavClicks++;
+        document.querySelector(".paverButton").addEventListener("click", () => {
+            paverClick++;
             clickCount++;
         });
 
