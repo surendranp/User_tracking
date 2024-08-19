@@ -14,8 +14,8 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
     maxPoolSize: 1000 // Optional: Adjust the connection pool size as needed
 }).then(() => {
     console.log("Connected to MongoDB");
@@ -35,9 +35,9 @@ const visitSchema = new mongoose.Schema({
     endTime: Date,
     duration: Number,
     clickCount: Number,
-    // contactClicks: Number,
+    contactClicks: Number,
     whatsappClicks: Number,
-    // viewMoreClicks: Number,
+    viewMoreClicks: Number,
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
@@ -62,9 +62,9 @@ app.post("/api/save-visit", async (req, res) => {
         endTime,
         duration,
         clickCount,
-        // contactClicks,
+        contactClicks,
         whatsappClicks,
-        // viewMoreClicks,
+        viewMoreClicks,
         homeClicks,
         aboutClicks,
         contactNavClicks,

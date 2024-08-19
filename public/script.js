@@ -1,7 +1,7 @@
 let clickCount = 0;
-// let contactClicks = 0;
+let contactClicks = 0;
 let whatsappClicks = 0;
-// let viewMoreClicks = 0;
+let viewMoreClicks = 0;
 let homeClicks = 0;
 let aboutClicks = 0;
 let contactNavClicks = 0;
@@ -27,20 +27,20 @@ document.getElementById("contactNavButton").addEventListener("click", () => {
 });
 
 // Track other button clicks
-// document.getElementById("contactButton").addEventListener("click", () => {
-//     contactClicks++;
-//     clickCount++;
-// });
+document.getElementById("contactButton").addEventListener("click", () => {
+    contactClicks++;
+    clickCount++;
+});
 
-document.getElementsByClassName("whatsappButton").addEventListener("click", () => {
+document.getElementById("whatsappButton").addEventListener("click", () => {
     whatsappClicks++;
     clickCount++;
 });
 
-// document.getElementById("viewMoreButton").addEventListener("click", () => {
-//     viewMoreClicks++;
-//     clickCount++;
-// });
+document.getElementById("viewMoreButton").addEventListener("click", () => {
+    viewMoreClicks++;
+    clickCount++;
+});
 
 // Track text selections
 document.addEventListener("mouseup", () => {
@@ -77,9 +77,9 @@ window.addEventListener("beforeunload", () => {
             endTime,
             duration,
             clickCount,
-            // contactClicks,
+            contactClicks,
             whatsappClicks,
-            // viewMoreClicks,
+            viewMoreClicks,
             homeClicks,
             aboutClicks,
             contactNavClicks,
