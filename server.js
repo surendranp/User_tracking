@@ -14,8 +14,6 @@ app.use(express.static('public'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    // useNewUrlParser: true,
-    // useUnifiedTopology: true,
     maxPoolSize: 1000
 }).then(() => {
     console.log("Connected to MongoDB");
@@ -30,9 +28,7 @@ const visitSchema = new mongoose.Schema({
     endTime: Date,
     duration: Number,
     clickCount: Number,
-    // contactClicks: Number,
     whatsappClicks: Number,
-    // viewMoreClicks: Number,
     homeClicks: Number,
     aboutClicks: Number,
     contactNavClicks: Number,
@@ -41,8 +37,8 @@ const visitSchema = new mongoose.Schema({
     flyashClick: Number,
     qualityClick: Number,
     CareerClick: Number,
-    QuoteClick:Number,
-    productClick:Number,
+    QuoteClick: Number,
+    productClick: Number,
     textSelections: Number,
     selectedTexts: [String] // Store selected texts as an array of strings
 });
@@ -67,9 +63,7 @@ app.post("/api/save-visit", async (req, res) => {
         endTime,
         duration,
         clickCount,
-        // contactClicks,
         whatsappClicks,
-        // viewMoreClicks,
         homeClicks,
         aboutClicks,
         contactNavClicks,
@@ -92,19 +86,17 @@ app.post("/api/save-visit", async (req, res) => {
             visit.endTime = new Date(endTime);
             visit.duration = duration;
             visit.clickCount = clickCount;
-            // visit.contactClicks = contactClicks;
             visit.whatsappClicks = whatsappClicks;
-            // visit.viewMoreClicks = viewMoreClicks;
             visit.homeClicks = homeClicks;
             visit.aboutClicks = aboutClicks;
             visit.contactNavClicks = contactNavClicks;
-            visit.paverClick= paverClick;
-            visit.holloClick= holloClick;
-            visit.flyashClick=flyashClick;
-            visit.qualityClick=qualityClick;
-            visit.CareerClick=CareerClick;
-            visit.QuoteClick=QuoteClick;
-            visit.productClick=productClick;
+            visit.paverClick = paverClick;
+            visit.holloClick = holloClick;
+            visit.flyashClick = flyashClick;
+            visit.qualityClick = qualityClick;
+            visit.CareerClick = CareerClick;
+            visit.QuoteClick = QuoteClick;
+            visit.productClick = productClick;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
             await visit.save();
@@ -116,9 +108,7 @@ app.post("/api/save-visit", async (req, res) => {
                 endTime: new Date(endTime),
                 duration,
                 clickCount,
-                // contactClicks,
                 whatsappClicks,
-                // viewMoreClicks,
                 homeClicks,
                 aboutClicks,
                 contactNavClicks,
