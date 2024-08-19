@@ -58,6 +58,8 @@ function handleTextSelection() {
         visitData.selectedTexts.push(selectedText);
         localStorage.setItem("visitData", JSON.stringify(visitData));
 
+        console.log("Selected text:", selectedText);
+
         fetch("/api/save-text-selection", {
             method: "POST",
             headers: {
