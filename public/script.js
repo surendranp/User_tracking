@@ -117,3 +117,4 @@ document.addEventListener("mouseup", () => {
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
+ 
