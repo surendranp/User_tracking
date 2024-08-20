@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    startTime: { type: Date },
+    startTime: Date,
     endTime: Date,
     duration: Number,
     clickCount: Number,

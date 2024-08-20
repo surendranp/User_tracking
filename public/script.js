@@ -4,7 +4,7 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve click counters and other data
+// Initialize or retrieve visit data
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     sessionId: sessionId,
     startTime: new Date(),
@@ -51,17 +51,12 @@ function saveVisitData() {
 }
 
 // Button click event listeners
-document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
-document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
-document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
-document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
-document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
-document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
-document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
-document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
-document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
-document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
-document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+document.querySelectorAll(".navButton").forEach(button => {
+    button.addEventListener("click", () => {
+        const buttonClass = button.classList[0];
+        updateVisitData(buttonClass + 'Clicks');
+    });
+});
 
 // Track text selections
 document.addEventListener("mouseup", () => {
