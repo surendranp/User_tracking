@@ -77,10 +77,12 @@ app.post("/api/save-visit", async (req, res) => {
                     CareerClick,
                     QuoteClick,
                     productClick,
-                    selectedTexts // Update the selectedTexts
+                },
+                $push: {
+                    selectedTexts: { $each: selectedTexts } // Append new text selections to the array
                 }
             },
-            { upsert: true } // Create a new document if none exists
+            { upsert: true, new: true } // Create a new document if none exists and return the updated document
         );
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
