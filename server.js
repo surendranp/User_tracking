@@ -150,7 +150,7 @@ async function sendVisitDataEmail() {
         // Define the email content
         let mailOptions = {
             from: process.env.EMAIL_USER,
-            to: 'recipient@example.com', // Replace with the recipient's email address
+            to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
             text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
         };
