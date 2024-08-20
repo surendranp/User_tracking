@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const session = require("express-session");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,6 +12,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
+// Session management
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
@@ -24,6 +33,9 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
+    ipAddress: String,
+    visitStart: Date,
+    visitEnd: Date,
     clickCount: Number,
     whatsappClicks: Number,
     homeClicks: Number,
@@ -35,8 +47,11 @@ const visitSchema = new mongoose.Schema({
     qualityClick: Number,
     CareerClick: Number,
     QuoteClick: Number,
-    productClick: Number
+    productClick: Number,
+    textSelections: [String]
 });
+
+visitSchema.index({ sessionId: 1, ipAddress: 1 }, { unique: true });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
@@ -55,14 +70,19 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
-        productClick
+        productClick,
+        textSelections,
+        visitEnd
     } = req.body;
 
+    const ipAddress = req.ip;
+
     try {
-        let visit = await Visit.findOne({ sessionId });
+        let visit = await Visit.findOne({ sessionId, ipAddress });
 
         if (visit) {
             // Update existing visit document
+            visit.visitEnd = new Date(visitEnd);
             visit.clickCount = clickCount;
             visit.whatsappClicks = whatsappClicks;
             visit.homeClicks = homeClicks;
@@ -75,10 +95,14 @@ app.post("/api/save-visit", async (req, res) => {
             visit.CareerClick = CareerClick;
             visit.QuoteClick = QuoteClick;
             visit.productClick = productClick;
+            visit.textSelections = textSelections;
         } else {
             // Create a new visit document
             visit = new Visit({
                 sessionId,
+                ipAddress,
+                visitStart: new Date(),
+                visitEnd: new Date(visitEnd),
                 clickCount,
                 whatsappClicks,
                 homeClicks,
@@ -90,7 +114,8 @@ app.post("/api/save-visit", async (req, res) => {
                 qualityClick,
                 CareerClick,
                 QuoteClick,
-                productClick
+                productClick,
+                textSelections
             });
         }
 
