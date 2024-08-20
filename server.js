@@ -5,10 +5,15 @@ const path = require("path");
 const app = express();
 const port = process.env.PORT || 8080;
 
-mongoose.connect("your_mongodb_connection_string", {
+// Replace with your actual MongoDB connection string
+const mongoURI = "mongodb+srv://suren3967:SurayRK3967@clusterdb.ae54l.mongodb.net/?retryWrites=true&w=majority&appName=clusterDB";
+
+mongoose.connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-});
+})
+.then(() => console.log("MongoDB connected successfully"))
+.catch(err => console.error("MongoDB connection error:", err));
 
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
