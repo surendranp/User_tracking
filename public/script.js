@@ -1,29 +1,34 @@
+// Function to generate a unique session ID (example)
+function generateSessionId() {
+    return 'sess-' + Math.random().toString(36).substr(2, 9);
+}
+
 // Initialize or retrieve the session ID
-let sessionId = localStorage.getItem("sessionId") || generateSessionId();
-if (!localStorage.getItem("sessionId")) {
+let sessionId = localStorage.getItem("sessionId");
+if (!sessionId) {
+    sessionId = generateSessionId();
     localStorage.setItem("sessionId", sessionId);
 }
 
 // Initialize or retrieve click counters
-let visitData = JSON.parse(localStorage.getItem("visitData")) || {
-    sessionId: sessionId,
-    clickCount: 0,
-    whatsappClicks: 0,
-    homeClicks: 0,
-    aboutClicks: 0,
-    contactNavClicks: 0,
-    paverClick: 0,
-    holloClick: 0,
-    flyashClick: 0,
-    qualityClick: 0,
-    CareerClick: 0,
-    QuoteClick: 0,
-    productClick: 0
-};
-
-// Function to generate a unique session ID (example)
-function generateSessionId() {
-    return 'sess-' + Math.random().toString(36).substr(2, 9);
+let visitData = JSON.parse(localStorage.getItem("visitData"));
+if (!visitData || visitData.sessionId !== sessionId) {
+    visitData = {
+        sessionId: sessionId,
+        clickCount: 0,
+        whatsappClicks: 0,
+        homeClicks: 0,
+        aboutClicks: 0,
+        contactNavClicks: 0,
+        paverClick: 0,
+        holloClick: 0,
+        flyashClick: 0,
+        qualityClick: 0,
+        CareerClick: 0,
+        QuoteClick: 0,
+        productClick: 0
+    };
+    localStorage.setItem("visitData", JSON.stringify(visitData));
 }
 
 // Function to update visit data
