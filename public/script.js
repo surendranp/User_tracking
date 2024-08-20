@@ -4,12 +4,9 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve visit data
+// Initialize or retrieve click counters
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     sessionId: sessionId,
-    startTime: new Date(),
-    endTime: null,
-    duration: 0,
     clickCount: 0,
     whatsappClicks: 0,
     homeClicks: 0,
@@ -21,9 +18,7 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     qualityClick: 0,
     CareerClick: 0,
     QuoteClick: 0,
-    productClick: 0,
-    textSelections: 0,
-    selectedTexts: []
+    productClick: 0
 };
 
 // Function to update visit data
@@ -31,13 +26,11 @@ function updateVisitData(key) {
     visitData[key]++;
     visitData.clickCount++;
     localStorage.setItem("visitData", JSON.stringify(visitData));
+    saveVisitData();
 }
 
 // Function to save visit data to the server
 function saveVisitData() {
-    visitData.endTime = new Date();
-    visitData.duration = Math.round((visitData.endTime - visitData.startTime) / 1000); // Duration in seconds
-
     fetch("/api/save-visit", {
         method: "POST",
         headers: {
@@ -51,38 +44,17 @@ function saveVisitData() {
 }
 
 // Button click event listeners
-document.querySelectorAll(".navButton").forEach(button => {
-    button.addEventListener("click", () => {
-        const buttonClass = button.classList[0];
-        updateVisitData(buttonClass + 'Clicks');
-    });
-});
-
-// Track text selections
-document.addEventListener("mouseup", () => {
-    const selectedText = window.getSelection().toString().trim();
-    if (selectedText) {
-        visitData.textSelections++;
-        visitData.selectedTexts.push(selectedText);
-        localStorage.setItem("visitData", JSON.stringify(visitData));
-
-        fetch("/api/save-text-selection", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ sessionId, selectedText })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Text selection saved:", data))
-        .catch(error => console.error("Error saving text selection:", error));
-    }
-});
+document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
+document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
+document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
+document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
+document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
+document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
+document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
+document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
+document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
+document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
+document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
-
-// Generate a unique session ID for each visit
-function generateSessionId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
-}

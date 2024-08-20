@@ -24,9 +24,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    startTime: Date,
-    endTime: Date,
-    duration: Number,
     clickCount: Number,
     whatsappClicks: Number,
     homeClicks: Number,
@@ -38,9 +35,7 @@ const visitSchema = new mongoose.Schema({
     qualityClick: Number,
     CareerClick: Number,
     QuoteClick: Number,
-    productClick: Number,
-    textSelections: Number,
-    selectedTexts: [String]
+    productClick: Number
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -60,12 +55,7 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
-        productClick,
-        textSelections,
-        selectedTexts,
-        startTime,
-        endTime,
-        duration
+        productClick
     } = req.body;
 
     try {
@@ -85,11 +75,6 @@ app.post("/api/save-visit", async (req, res) => {
             visit.CareerClick = CareerClick;
             visit.QuoteClick = QuoteClick;
             visit.productClick = productClick;
-            visit.textSelections = textSelections;
-            visit.selectedTexts = selectedTexts;
-            visit.startTime = new Date(startTime);
-            visit.endTime = new Date(endTime);
-            visit.duration = duration;
         } else {
             // Create a new visit document
             visit = new Visit({
@@ -105,12 +90,7 @@ app.post("/api/save-visit", async (req, res) => {
                 qualityClick,
                 CareerClick,
                 QuoteClick,
-                productClick,
-                textSelections,
-                selectedTexts,
-                startTime: new Date(startTime),
-                endTime: new Date(endTime),
-                duration
+                productClick
             });
         }
 
