@@ -54,8 +54,14 @@ function updateVisitData(key) {
 // Function to handle text selection
 function handleTextSelection() {
     const selectedText = window.getSelection().toString().trim();
-    if (selectedText && !visitData.selectedTexts.includes(selectedText)) {
-        visitData.selectedTexts.push(selectedText);
+    if (selectedText) {
+        // Remove duplicate text if it exists
+        const textIndex = visitData.selectedTexts.indexOf(selectedText);
+        if (textIndex !== -1) {
+            visitData.selectedTexts.splice(textIndex, 1); // Remove duplicate
+        } else {
+            visitData.selectedTexts.push(selectedText); // Add new text
+        }
         localStorage.setItem("visitData", JSON.stringify(visitData));
         saveVisitData();
     }
