@@ -29,7 +29,6 @@ document.querySelectorAll(".navButton").forEach(button => {
 
         if (buttonClass) {
             clickCounts[buttonClass]++;
-            // Optionally, you can save the data immediately or use a debounce function
         }
     });
 });

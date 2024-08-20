@@ -70,7 +70,12 @@ app.post("/api/save-visit", async (req, res) => {
             // Update existing visit document
             visit.endTime = new Date(endTime);
             visit.duration = duration;
-            visit.clickCounts = clickCounts;
+            visit.clickCounts.home = clickCounts.home;
+            visit.clickCounts.about = clickCounts.about;
+            visit.clickCounts.contact = clickCounts.contact;
+            visit.clickCounts.enquiry = clickCounts.enquiry;
+            visit.clickCounts.qualityControl = clickCounts.qualityControl;
+            visit.clickCounts.products = clickCounts.products;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
 
