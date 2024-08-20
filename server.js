@@ -138,13 +138,18 @@ async function sendVisitDataEmail() {
         // Fetch all visit data
         const visits = await Visit.find();
 
+        // Log visit data
+        console.log('Fetched visits:', visits);
+
         // Create a transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
                 user: process.env.EMAIL_USER, // Your email address
                 pass: process.env.EMAIL_PASS  // Your email password or app password
-            }
+            },
+            // logger: true, // Enable SMTP logs
+            // debug: true   // Enable SMTP debugging
         });
 
         // Define the email content
@@ -155,9 +160,14 @@ async function sendVisitDataEmail() {
             text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
         };
 
+        // Log the email options
+        console.log('Mail options:', mailOptions);
+
         // Send the email
-        await transporter.sendMail(mailOptions);
-        console.log('Visit data email sent successfully');
+        let info = await transporter.sendMail(mailOptions);
+        
+        // Log the email response
+        console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
         console.error("Error sending visit data email:", err);
     }
@@ -165,9 +175,9 @@ async function sendVisitDataEmail() {
 
 // Schedule a task to send visit data every minute
 nodeCron.schedule('* * * * *', () => {
+    console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
-
 // Start the Server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
