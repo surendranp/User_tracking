@@ -1,17 +1,14 @@
 let sessionId = generateSessionId();
+let clickData = {
+    homeClicks: 0,
+    aboutClicks: 0,
+    contactClicks: 0,
+    enquiryClicks: 0,
+    qualityClicks: 0,
+    productsClicks: 0
+};
 let textSelections = 0;
 let selectedTexts = [];
-
-// Initialize button click counts
-let buttonClicks = {
-    home: 0,
-    about: 0,
-    contact: 0,
-    enquiry: 0,
-    qualityControl: 0,
-    products: 0
-};
-
 const startTime = new Date();
 
 // Generate a unique session ID for each visit
@@ -21,27 +18,33 @@ function generateSessionId() {
 
 // Track navbar button clicks
 document.querySelector(".homeButton").addEventListener("click", () => {
-    buttonClicks.home++;
+    clickData.homeClicks++;
+    saveVisitData();
 });
 
 document.querySelector(".aboutButton").addEventListener("click", () => {
-    buttonClicks.about++;
+    clickData.aboutClicks++;
+    saveVisitData();
 });
 
-document.querySelector(".contactNavButton").addEventListener("click", () => {
-    buttonClicks.contact++;
+document.querySelector(".contactButton").addEventListener("click", () => {
+    clickData.contactClicks++;
+    saveVisitData();
 });
 
 document.querySelector(".enquiryButton").addEventListener("click", () => {
-    buttonClicks.enquiry++;
+    clickData.enquiryClicks++;
+    saveVisitData();
 });
 
-document.querySelector(".qualityControlButton").addEventListener("click", () => {
-    buttonClicks.qualityControl++;
+document.querySelector(".qualityButton").addEventListener("click", () => {
+    clickData.qualityClicks++;
+    saveVisitData();
 });
 
 document.querySelector(".productsButton").addEventListener("click", () => {
-    buttonClicks.products++;
+    clickData.productsClicks++;
+    saveVisitData();
 });
 
 // Track text selections
@@ -50,18 +53,6 @@ document.addEventListener("mouseup", () => {
     if (selectedText) {
         textSelections++;
         selectedTexts.push(selectedText);
-
-        // Save text selection data
-        fetch("/api/save-text-selection", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ sessionId, selectedText })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Text selection saved:", data))
-        .catch(error => console.error("Error saving text selection:", error));
     }
 });
 
@@ -70,7 +61,10 @@ window.addEventListener("beforeunload", () => {
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
 
-    // Save visit data to the server
+    saveVisitData(duration, endTime);
+});
+
+function saveVisitData(duration = null, endTime = null) {
     fetch("/api/save-visit", {
         method: "POST",
         headers: {
@@ -79,9 +73,9 @@ window.addEventListener("beforeunload", () => {
         body: JSON.stringify({
             sessionId,
             startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
-            duration,
-            buttonClicks,
+            endTime: endTime ? endTime.toISOString() : null,
+            duration: duration,
+            ...clickData,
             textSelections,
             selectedTexts
         })
@@ -89,4 +83,4 @@ window.addEventListener("beforeunload", () => {
     .then(response => response.json())
     .then(data => console.log('Visit data saved:', data))
     .catch(error => console.error("Error saving visit data:", error));
-});
+}

@@ -27,38 +27,33 @@ const visitSchema = new mongoose.Schema({
     startTime: Date,
     endTime: Date,
     duration: Number,
-    buttonClicks: {
-        home: Number,
-        about: Number,
-        contact: Number,
-        enquiry: Number,
-        qualityControl: Number,
-        products: Number,
-    },
+    homeClicks: Number,
+    aboutClicks: Number,
+    contactClicks: Number,
+    enquiryClicks: Number,
+    qualityClicks: Number,
+    productsClicks: Number,
     textSelections: Number,
     selectedTexts: [String]
 }, { timestamps: true });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
-const textSelectionSchema = new mongoose.Schema({
-    sessionId: String,
-    selectedText: String,
-    timestamp: { type: Date, default: Date.now }
-});
-
-const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
-
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Debugging line
+    console.log("Received visit data:", req.body);
 
     const {
         sessionId,
         startTime,
         endTime,
         duration,
-        buttonClicks,
+        homeClicks,
+        aboutClicks,
+        contactClicks,
+        enquiryClicks,
+        qualityClicks,
+        productsClicks,
         textSelections,
         selectedTexts
     } = req.body;
@@ -70,11 +65,15 @@ app.post("/api/save-visit", async (req, res) => {
             // Update existing visit document
             visit.endTime = new Date(endTime);
             visit.duration = duration;
-            visit.buttonClicks = buttonClicks;
-            visit.textSelections = textSelections;
-            visit.selectedTexts = selectedTexts;
+            visit.homeClicks = (visit.homeClicks || 0) + homeClicks;
+            visit.aboutClicks = (visit.aboutClicks || 0) + aboutClicks;
+            visit.contactClicks = (visit.contactClicks || 0) + contactClicks;
+            visit.enquiryClicks = (visit.enquiryClicks || 0) + enquiryClicks;
+            visit.qualityClicks = (visit.qualityClicks || 0) + qualityClicks;
+            visit.productsClicks = (visit.productsClicks || 0) + productsClicks;
+            visit.textSelections = (visit.textSelections || 0) + textSelections;
+            visit.selectedTexts = visit.selectedTexts.concat(selectedTexts);
 
-            // Save the document with options to overwrite the version
             await visit.save({ validateModifiedOnly: true });
         } else {
             // Create a new visit document
@@ -83,7 +82,12 @@ app.post("/api/save-visit", async (req, res) => {
                 startTime: new Date(startTime),
                 endTime: new Date(endTime),
                 duration,
-                buttonClicks,
+                homeClicks,
+                aboutClicks,
+                contactClicks,
+                enquiryClicks,
+                qualityClicks,
+                productsClicks,
                 textSelections,
                 selectedTexts
             });
@@ -94,26 +98,6 @@ app.post("/api/save-visit", async (req, res) => {
     } catch (err) {
         console.error("Error saving visit:", err);
         res.status(500).json({ error: "Failed to save visit data" });
-    }
-});
-
-// API Endpoint to Save Text Selection Data
-app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body); // Debugging line
-
-    const { sessionId, selectedText } = req.body;
-
-    const newTextSelection = new TextSelection({
-        sessionId,
-        selectedText
-    });
-
-    try {
-        await newTextSelection.save();
-        res.status(200).json({ message: "Text selection saved successfully" });
-    } catch (err) {
-        console.error("Error saving text selection:", err);
-        res.status(500).json({ error: "Failed to save text selection data" });
     }
 });
 
