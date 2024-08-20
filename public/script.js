@@ -1,17 +1,10 @@
-// Helper function to generate a unique session ID
-function generateSessionId() {
-    return 'xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'.replace(/[x]/g, function() {
-        return Math.floor(Math.random() * 16).toString(16);
-    });
-}
-
 // Initialize or retrieve the session ID
 let sessionId = localStorage.getItem("sessionId") || generateSessionId();
 if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve visit data
+// Initialize or retrieve click counters
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     sessionId: sessionId,
     clickCount: 0,
@@ -25,8 +18,7 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     qualityClick: 0,
     CareerClick: 0,
     QuoteClick: 0,
-    productClick: 0,
-    textSelections: []
+    productClick: 0
 };
 
 // Function to update visit data
@@ -51,16 +43,6 @@ function saveVisitData() {
     .catch(error => console.error("Error saving visit data:", error));
 }
 
-// Track text selection
-document.addEventListener('mouseup', () => {
-    const selection = window.getSelection().toString();
-    if (selection) {
-        visitData.textSelections.push(selection);
-        localStorage.setItem("visitData", JSON.stringify(visitData));
-        saveVisitData();
-    }
-});
-
 // Button click event listeners
 document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
 document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
@@ -75,8 +57,4 @@ document.querySelector(".productButton").addEventListener("click", () => updateV
 document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
 
 // Save visit data when the page is unloaded
-window.addEventListener("beforeunload", () => {
-    visitData.visitEnd = new Date().toISOString();
-    localStorage.setItem("visitData", JSON.stringify(visitData));
-    saveVisitData();
-});
+window.addEventListener("beforeunload", saveVisitData);
