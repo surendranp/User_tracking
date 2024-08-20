@@ -1,18 +1,16 @@
 let sessionId = generateSessionId();
-let clickCount = 0;
-let whatsappClicks = 0;
-let homeClicks = 0;
-let aboutClicks = 0;
-let contactNavClicks = 0;
-let paverClick = 0;
-let holloClick = 0;
-let flyashClick = 0;
-let qualityClick = 0;
-let CareerClick = 0;
-let QuoteClick = 0;
-let productClick = 0;
 let textSelections = 0;
 let selectedTexts = [];
+
+// Initialize button click counts
+let buttonClicks = {
+    home: 0,
+    about: 0,
+    contact: 0,
+    enquiry: 0,
+    qualityControl: 0,
+    products: 0
+};
 
 const startTime = new Date();
 
@@ -23,58 +21,27 @@ function generateSessionId() {
 
 // Track navbar button clicks
 document.querySelector(".homeButton").addEventListener("click", () => {
-    homeClicks++;
-    clickCount++;
+    buttonClicks.home++;
 });
 
 document.querySelector(".aboutButton").addEventListener("click", () => {
-    aboutClicks++;
-    clickCount++;
+    buttonClicks.about++;
 });
 
 document.querySelector(".contactNavButton").addEventListener("click", () => {
-    contactNavClicks++;
-    clickCount++;
+    buttonClicks.contact++;
 });
 
-document.querySelector(".paverButton").addEventListener("click", () => {
-    paverClick++;
-    clickCount++;
+document.querySelector(".enquiryButton").addEventListener("click", () => {
+    buttonClicks.enquiry++;
 });
 
-document.querySelector(".hollowButton").addEventListener("click", () => {
-    holloClick++;
-    clickCount++;
+document.querySelector(".qualityControlButton").addEventListener("click", () => {
+    buttonClicks.qualityControl++;
 });
 
-document.querySelector(".flyashButton").addEventListener("click", () => {
-    flyashClick++;
-    clickCount++;
-});
-
-document.querySelector(".qualityButton").addEventListener("click", () => {
-    qualityClick++;
-    clickCount++;
-});
-
-document.querySelector(".CareerButton").addEventListener("click", () => {
-    CareerClick++;
-    clickCount++;
-});
-
-document.querySelector(".QuoteButton").addEventListener("click", () => {
-    QuoteClick++;
-    clickCount++;
-});
-
-document.querySelector(".productButton").addEventListener("click", () => {
-    productClick++;
-    clickCount++;
-});
-
-document.querySelector(".whatsappButton").addEventListener("click", () => {
-    whatsappClicks++;
-    clickCount++;
+document.querySelector(".productsButton").addEventListener("click", () => {
+    buttonClicks.products++;
 });
 
 // Track text selections
@@ -114,18 +81,7 @@ window.addEventListener("beforeunload", () => {
             startTime: startTime.toISOString(),
             endTime: endTime.toISOString(),
             duration,
-            clickCount,
-            whatsappClicks,
-            homeClicks,
-            aboutClicks,
-            contactNavClicks,
-            paverClick,
-            holloClick,
-            flyashClick,
-            qualityClick,
-            CareerClick,
-            QuoteClick,
-            productClick,
+            buttonClicks,
             textSelections,
             selectedTexts
         })

@@ -27,18 +27,14 @@ const visitSchema = new mongoose.Schema({
     startTime: Date,
     endTime: Date,
     duration: Number,
-    clickCount: Number,
-    whatsappClicks: Number,
-    homeClicks: Number,
-    aboutClicks: Number,
-    contactNavClicks: Number,
-    paverClick: Number,
-    holloClick: Number,
-    flyashClick: Number,
-    qualityClick: Number,
-    CareerClick: Number,
-    QuoteClick: Number,
-    productClick: Number,
+    buttonClicks: {
+        home: Number,
+        about: Number,
+        contact: Number,
+        enquiry: Number,
+        qualityControl: Number,
+        products: Number,
+    },
     textSelections: Number,
     selectedTexts: [String]
 }, { timestamps: true });
@@ -55,25 +51,14 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body);
+    console.log("Received visit data:", req.body); // Debugging line
 
     const {
         sessionId,
         startTime,
         endTime,
         duration,
-        clickCount,
-        whatsappClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        paverClick,
-        holloClick,
-        flyashClick,
-        qualityClick,
-        CareerClick,
-        QuoteClick,
-        productClick,
+        buttonClicks,
         textSelections,
         selectedTexts
     } = req.body;
@@ -85,22 +70,12 @@ app.post("/api/save-visit", async (req, res) => {
             // Update existing visit document
             visit.endTime = new Date(endTime);
             visit.duration = duration;
-            visit.clickCount = clickCount;
-            visit.whatsappClicks = whatsappClicks;
-            visit.homeClicks = homeClicks;
-            visit.aboutClicks = aboutClicks;
-            visit.contactNavClicks = contactNavClicks;
-            visit.paverClick = paverClick;
-            visit.holloClick = holloClick;
-            visit.flyashClick = flyashClick;
-            visit.qualityClick = qualityClick;
-            visit.CareerClick = CareerClick;
-            visit.QuoteClick = QuoteClick;
-            visit.productClick = productClick;
+            visit.buttonClicks = buttonClicks;
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
 
-            await visit.save();
+            // Save the document with options to overwrite the version
+            await visit.save({ validateModifiedOnly: true });
         } else {
             // Create a new visit document
             const newVisit = new Visit({
@@ -108,18 +83,7 @@ app.post("/api/save-visit", async (req, res) => {
                 startTime: new Date(startTime),
                 endTime: new Date(endTime),
                 duration,
-                clickCount,
-                whatsappClicks,
-                homeClicks,
-                aboutClicks,
-                contactNavClicks,
-                paverClick,
-                holloClick,
-                flyashClick,
-                qualityClick,
-                CareerClick,
-                QuoteClick,
-                productClick,
+                buttonClicks,
                 textSelections,
                 selectedTexts
             });
@@ -135,7 +99,7 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body);
+    console.log("Received text selection data:", req.body); // Debugging line
 
     const { sessionId, selectedText } = req.body;
 
