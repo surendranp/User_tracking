@@ -21,62 +21,71 @@ function generateSessionId() {
     return '_' + Math.random().toString(36).substr(2, 9);
 }
 
+// Helper function to send data and navigate to a new page
+function handleClick(event, clickType) {
+    clickType++;
+    clickCount++;
+
+    // Prevent the default link behavior
+    event.preventDefault();
+
+    // Prepare the data to be sent
+    const endTime = new Date();
+    const duration = Math.round((endTime - startTime) / 1000);
+
+    const data = {
+        sessionId,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString(),
+        duration,
+        clickCount,
+        whatsappClicks,
+        homeClicks,
+        aboutClicks,
+        contactNavClicks,
+        paverClick,
+        holloClick,
+        flyashClick,
+        qualityClick,
+        CareerClick,
+        QuoteClick,
+        productClick,
+        textSelections,
+        selectedTexts
+    };
+
+    // Send the data to the server
+    fetch("/api/save-visit", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(() => {
+        // After saving data, navigate to the corresponding page
+        window.location.href = event.target.href;
+    })
+    .catch(error => {
+        console.error("Error saving visit data:", error);
+        // Navigate to the corresponding page even if there's an error
+        window.location.href = event.target.href;
+    });
+}
+
 // Track navbar button clicks
-document.querySelector(".homeButton").addEventListener("click", () => {
-    homeClicks++;
-    clickCount++;
-    // Optionally, you can save the data immediately or use a debounce function
-});
-
-document.querySelector(".aboutButton").addEventListener("click", () => {
-    aboutClicks++;
-    clickCount++;
-});
-
-document.querySelector(".contactNavButton").addEventListener("click", () => {
-    contactNavClicks++;
-    clickCount++;
-});
-
-document.querySelector(".paverButton").addEventListener("click", () => {
-    paverClick++;
-    clickCount++;
-});
-
-document.querySelector(".hollowButton").addEventListener("click", () => {
-    holloClick++;
-    clickCount++;
-});
-
-document.querySelector(".flyashButton").addEventListener("click", () => {
-    flyashClick++;
-    clickCount++;
-});
-
-document.querySelector(".qualityButton").addEventListener("click", () => {
-    qualityClick++;
-    clickCount++;
-});
-
-document.querySelector(".CareerButton").addEventListener("click", () => {
-    CareerClick++;
-    clickCount++;
-});
-
-document.querySelector(".QuoteButton").addEventListener("click", () => {
-    QuoteClick++;
-    clickCount++;
-});
-
-document.querySelector(".productButton").addEventListener("click", () => {
-    productClick++;
-    clickCount++;
-});
-
-document.querySelector(".whatsappButton").addEventListener("click", () => {
-    whatsappClicks++;
-    clickCount++;
-});
+document.querySelector(".homeButton").addEventListener("click", (event) => handleClick(event, homeClicks));
+document.querySelector(".aboutButton").addEventListener("click", (event) => handleClick(event, aboutClicks));
+document.querySelector(".contactNavButton").addEventListener("click", (event) => handleClick(event, contactNavClicks));
+document.querySelector(".paverButton").addEventListener("click", (event) => handleClick(event, paverClick));
+document.querySelector(".hollowButton").addEventListener("click", (event) => handleClick(event, holloClick));
+document.querySelector(".flyashButton").addEventListener("click", (event) => handleClick(event, flyashClick));
+document.querySelector(".qualityButton").addEventListener("click", (event) => handleClick(event, qualityClick));
+document.querySelector(".CareerButton").addEventListener("click", (event) => handleClick(event, CareerClick));
+document.querySelector(".QuoteButton").addEventListener("click", (event) => handleClick(event, QuoteClick));
+document.querySelector(".productButton").addEventListener("click", (event) => handleClick(event, productClick));
+document.querySelector(".whatsappButton").addEventListener("click", (event) => handleClick(event, whatsappClicks));
 
 // Track text selections
 document.addEventListener("mouseup", () => {
