@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const session = require("express-session");
+const MongoStore = require("connect-mongo");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,12 +14,18 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-// Session management
+// Session management with connect-mongo
+const mongoStore = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB",
+    collectionName: 'sessions'
+});
+
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }
+    store: mongoStore,
+    cookie: { secure: false } // Set to true if you're using HTTPS
 }));
 
 // Connect to MongoDB
