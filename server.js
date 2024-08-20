@@ -3,6 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const nodeCron = require("node-cron");
+const nodemailer = require("nodemailer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,7 +38,7 @@ const visitSchema = new mongoose.Schema({
     CareerClick: { type: Number, default: 0 },
     QuoteClick: { type: Number, default: 0 },
     productClick: { type: Number, default: 0 },
-    selectedTexts: [String] // New field to store selected text
+    selectedTexts: { type: [String], default: [] } // New field to store selected text
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -61,35 +63,58 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        await Visit.findOneAndUpdate(
-            { sessionId },
-            {
-                $set: {
-                    clickCount,
-                    whatsappClicks,
-                    homeClicks,
-                    aboutClicks,
-                    contactNavClicks,
-                    paverClick,
-                    holloClick,
-                    flyashClick,
-                    qualityClick,
-                    CareerClick,
-                    QuoteClick,
-                    productClick,
-                },
-                $push: {
-                    selectedTexts: { $each: selectedTexts } // Append new text selections to the array
+        let visit = await Visit.findOne({ sessionId });
+
+        if (visit) {
+            // Update existing visit document
+            visit.clickCount = clickCount;
+            visit.whatsappClicks = whatsappClicks;
+            visit.homeClicks = homeClicks;
+            visit.aboutClicks = aboutClicks;
+            visit.contactNavClicks = contactNavClicks;
+            visit.paverClick = paverClick;
+            visit.holloClick = holloClick;
+            visit.flyashClick = flyashClick;
+            visit.qualityClick = qualityClick;
+            visit.CareerClick = CareerClick;
+            visit.QuoteClick = QuoteClick;
+            visit.productClick = productClick;
+
+            // Prevent duplicate text selections
+            selectedTexts.forEach(text => {
+                if (!visit.selectedTexts.includes(text)) {
+                    visit.selectedTexts.push(text);
                 }
-            },
-            { upsert: true, new: true } // Create a new document if none exists and return the updated document
-        );
+            });
+
+        } else {
+            // Create a new visit document
+            visit = new Visit({
+                sessionId,
+                clickCount,
+                whatsappClicks,
+                homeClicks,
+                aboutClicks,
+                contactNavClicks,
+                paverClick,
+                holloClick,
+                flyashClick,
+                qualityClick,
+                CareerClick,
+                QuoteClick,
+                productClick,
+                selectedTexts: [...new Set(selectedTexts)] // Ensure uniqueness in initial array
+            });
+        }
+
+        await visit.save();
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
         res.status(500).json({ error: "Failed to save visit data" });
     }
 });
+
 // API Endpoint to Get Visit Data for a Session
 app.get("/api/get-visit/:sessionId", async (req, res) => {
     const { sessionId } = req.params;
@@ -105,6 +130,42 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
         console.error("Error fetching visit data:", err);
         res.status(500).json({ error: "Failed to fetch visit data" });
     }
+});
+
+// Function to send email with visit data
+async function sendVisitDataEmail() {
+    try {
+        // Fetch all visit data
+        const visits = await Visit.find();
+
+        // Create a transporter for sending emails
+        let transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER, // Your email address
+                pass: process.env.EMAIL_PASS  // Your email password or app password
+            }
+        });
+
+        // Define the email content
+        let mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: 'recipient@example.com', // Replace with the recipient's email address
+            subject: 'Automatic Visit Data Update',
+            text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
+        };
+
+        // Send the email
+        await transporter.sendMail(mailOptions);
+        console.log('Visit data email sent successfully');
+    } catch (err) {
+        console.error("Error sending visit data email:", err);
+    }
+}
+
+// Schedule a task to send visit data every minute
+nodeCron.schedule('* * * * *', () => {
+    sendVisitDataEmail();
 });
 
 // Start the Server
