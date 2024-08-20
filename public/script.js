@@ -1,82 +1,60 @@
-let sessionId = generateSessionId();
-let clickCounts = {
-    home: 0,
-    about: 0,
-    contact: 0,
-    enquiry: 0,
-    qualityControl: 0,
-    products: 0
-};
-let textSelections = 0;
-let selectedTexts = [];
-
-const startTime = new Date();
-
-// Generate a unique session ID for each visit
-function generateSessionId() {
-    return '_' + Math.random().toString(36).substr(2, 9);
+// Initialize or retrieve the session ID
+let sessionId = localStorage.getItem("sessionId") || generateSessionId();
+if (!localStorage.getItem("sessionId")) {
+    localStorage.setItem("sessionId", sessionId);
 }
 
-// Track navbar button clicks
-document.querySelectorAll(".navButton").forEach(button => {
-    button.addEventListener("click", () => {
-        const buttonClass = button.classList.contains("homeButton") ? "home" :
-                            button.classList.contains("aboutButton") ? "about" :
-                            button.classList.contains("contactNavButton") ? "contact" :
-                            button.classList.contains("enquiryButton") ? "enquiry" :
-                            button.classList.contains("qualityButton") ? "qualityControl" :
-                            button.classList.contains("productButton") ? "products" : "";
+// Initialize or retrieve click counters
+let visitData = JSON.parse(localStorage.getItem("visitData")) || {
+    sessionId: sessionId,
+    clickCount: 0,
+    whatsappClicks: 0,
+    homeClicks: 0,
+    aboutClicks: 0,
+    contactNavClicks: 0,
+    paverClick: 0,
+    holloClick: 0,
+    flyashClick: 0,
+    qualityClick: 0,
+    CareerClick: 0,
+    QuoteClick: 0,
+    productClick: 0
+};
 
-        if (buttonClass) {
-            clickCounts[buttonClass]++;
-            console.log(`Button ${buttonClass} clicked. Total count: ${clickCounts[buttonClass]}`); // Debugging line
-        }
-    });
-});
+// Function to update visit data
+function updateVisitData(key) {
+    visitData[key]++;
+    visitData.clickCount++;
+    localStorage.setItem("visitData", JSON.stringify(visitData));
+    saveVisitData();
+}
 
-// Track text selections
-document.addEventListener("mouseup", () => {
-    const selectedText = window.getSelection().toString().trim();
-    if (selectedText) {
-        textSelections++;
-        selectedTexts.push(selectedText);
-
-        // Save text selection data
-        fetch("/api/save-text-selection", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ sessionId, selectedText })
-        })
-        .then(response => response.json())
-        .then(data => console.log("Text selection saved:", data))
-        .catch(error => console.error("Error saving text selection:", error));
-    }
-});
-
-// Track page leave event
-window.addEventListener("beforeunload", () => {
-    const endTime = new Date();
-    const duration = Math.round((endTime - startTime) / 1000); // Duration in seconds
-
-    // Save visit data to the server
+// Function to save visit data to the server
+function saveVisitData() {
     fetch("/api/save-visit", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-            sessionId,
-            startTime: startTime.toISOString(),
-            endTime: endTime.toISOString(),
-            duration,
-            clickCounts,
-            textSelections,
-            selectedTexts
-        })
+        body: JSON.stringify(visitData)
     })
     .then(response => response.json())
     .then(data => console.log('Visit data saved:', data))
     .catch(error => console.error("Error saving visit data:", error));
-});
+}
+
+// Button click event listeners
+document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
+document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
+document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
+document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
+document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
+document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
+document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
+document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
+document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
+document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
+document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+
+// Save visit data when the page is unloaded
+window.addEventListener("beforeunload", saveVisitData);
