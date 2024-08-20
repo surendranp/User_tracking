@@ -26,7 +26,6 @@ function updateVisitData(key) {
     visitData[key]++;
     visitData.clickCount++;
     localStorage.setItem("visitData", JSON.stringify(visitData));
-    saveVisitData();
 }
 
 // Function to save visit data to the server
@@ -58,3 +57,8 @@ document.querySelector(".whatsappButton").addEventListener("click", () => update
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
+
+// Generate a unique session ID for each visit
+function generateSessionId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}

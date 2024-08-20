@@ -24,6 +24,9 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
+    startTime: { type: Date, default: Date.now },
+    endTime: Date,
+    duration: Number,
     clickCount: Number,
     whatsappClicks: Number,
     homeClicks: Number,
@@ -35,7 +38,9 @@ const visitSchema = new mongoose.Schema({
     qualityClick: Number,
     CareerClick: Number,
     QuoteClick: Number,
-    productClick: Number
+    productClick: Number,
+    textSelections: Number,
+    selectedTexts: [String]
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -55,7 +60,9 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
-        productClick
+        productClick,
+        textSelections,
+        selectedTexts
     } = req.body;
 
     try {
@@ -63,6 +70,8 @@ app.post("/api/save-visit", async (req, res) => {
 
         if (visit) {
             // Update existing visit document
+            visit.endTime = new Date(); // Update endTime to the current time
+            visit.duration = Math.round((visit.endTime - visit.startTime) / 1000); // Calculate duration in seconds
             visit.clickCount = clickCount;
             visit.whatsappClicks = whatsappClicks;
             visit.homeClicks = homeClicks;
@@ -75,6 +84,8 @@ app.post("/api/save-visit", async (req, res) => {
             visit.CareerClick = CareerClick;
             visit.QuoteClick = QuoteClick;
             visit.productClick = productClick;
+            visit.textSelections = textSelections;
+            visit.selectedTexts = selectedTexts;
         } else {
             // Create a new visit document
             visit = new Visit({
@@ -90,7 +101,9 @@ app.post("/api/save-visit", async (req, res) => {
                 qualityClick,
                 CareerClick,
                 QuoteClick,
-                productClick
+                productClick,
+                textSelections,
+                selectedTexts
             });
         }
 
