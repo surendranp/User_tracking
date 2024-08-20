@@ -85,6 +85,22 @@ app.post("/api/save-visit", async (req, res) => {
         res.status(500).json({ error: "Failed to save visit data" });
     }
 });
+// API Endpoint to Get Visit Data for a Session
+app.get("/api/get-visit/:sessionId", async (req, res) => {
+    const { sessionId } = req.params;
+
+    try {
+        const visit = await Visit.findOne({ sessionId });
+        if (visit) {
+            res.status(200).json(visit);
+        } else {
+            res.status(404).json(null);
+        }
+    } catch (err) {
+        console.error("Error fetching visit data:", err);
+        res.status(500).json({ error: "Failed to fetch visit data" });
+    }
+});
 
 // Start the Server
 app.listen(PORT, () => {

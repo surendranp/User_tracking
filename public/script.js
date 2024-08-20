@@ -1,34 +1,45 @@
-// Function to generate a unique session ID (example)
+// Initialize or retrieve the session ID
+let sessionId = localStorage.getItem("sessionId") || generateSessionId();
+if (!localStorage.getItem("sessionId")) {
+    localStorage.setItem("sessionId", sessionId);
+}
+
+// Function to generate a unique session ID
 function generateSessionId() {
     return 'sess-' + Math.random().toString(36).substr(2, 9);
 }
 
-// Initialize or retrieve the session ID
-let sessionId = localStorage.getItem("sessionId");
-if (!sessionId) {
-    sessionId = generateSessionId();
-    localStorage.setItem("sessionId", sessionId);
-}
+// Fetch the existing visit data for the session from the server
+fetchVisitData(sessionId);
 
-// Initialize or retrieve click counters
-let visitData = JSON.parse(localStorage.getItem("visitData"));
-if (!visitData || visitData.sessionId !== sessionId) {
-    visitData = {
-        sessionId: sessionId,
-        clickCount: 0,
-        whatsappClicks: 0,
-        homeClicks: 0,
-        aboutClicks: 0,
-        contactNavClicks: 0,
-        paverClick: 0,
-        holloClick: 0,
-        flyashClick: 0,
-        qualityClick: 0,
-        CareerClick: 0,
-        QuoteClick: 0,
-        productClick: 0
-    };
-    localStorage.setItem("visitData", JSON.stringify(visitData));
+// Function to fetch existing visit data from the server
+function fetchVisitData(sessionId) {
+    fetch(`/api/get-visit/${sessionId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data) {
+                visitData = data;
+            } else {
+                // Initialize visit data if no existing data is found
+                visitData = {
+                    sessionId: sessionId,
+                    clickCount: 0,
+                    whatsappClicks: 0,
+                    homeClicks: 0,
+                    aboutClicks: 0,
+                    contactNavClicks: 0,
+                    paverClick: 0,
+                    holloClick: 0,
+                    flyashClick: 0,
+                    qualityClick: 0,
+                    CareerClick: 0,
+                    QuoteClick: 0,
+                    productClick: 0
+                };
+            }
+            localStorage.setItem("visitData", JSON.stringify(visitData));
+        })
+        .catch(error => console.error("Error fetching visit data:", error));
 }
 
 // Function to update visit data
