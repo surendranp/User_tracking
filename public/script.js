@@ -25,7 +25,6 @@ function generateSessionId() {
 document.querySelector(".homeButton").addEventListener("click", () => {
     homeClicks++;
     clickCount++;
-    // Optionally, you can save the data immediately or use a debounce function
 });
 
 document.querySelector(".aboutButton").addEventListener("click", () => {

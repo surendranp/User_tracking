@@ -55,7 +55,7 @@ const TextSelection = mongoose.model("TextSelection", textSelectionSchema);
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
-    console.log("Received visit data:", req.body); // Debugging line
+    console.log("Received visit data:", req.body);
 
     const {
         sessionId,
@@ -100,8 +100,7 @@ app.post("/api/save-visit", async (req, res) => {
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
 
-            // Save the document with options to overwrite the version
-            await visit.save({ validateModifiedOnly: true });
+            await visit.save();
         } else {
             // Create a new visit document
             const newVisit = new Visit({
@@ -136,7 +135,7 @@ app.post("/api/save-visit", async (req, res) => {
 
 // API Endpoint to Save Text Selection Data
 app.post("/api/save-text-selection", async (req, res) => {
-    console.log("Received text selection data:", req.body); // Debugging line
+    console.log("Received text selection data:", req.body);
 
     const { sessionId, selectedText } = req.body;
 
