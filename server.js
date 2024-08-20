@@ -147,9 +147,7 @@ async function sendVisitDataEmail() {
             auth: {
                 user: process.env.EMAIL_USER, // Your email address
                 pass: process.env.EMAIL_PASS  // Your email password or app password
-            },
-            // logger: true, // Enable SMTP logs
-            // debug: true   // Enable SMTP debugging
+            }
         });
 
         // Define the email content
@@ -160,13 +158,8 @@ async function sendVisitDataEmail() {
             text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
         };
 
-        // Log the email options
-        console.log('Mail options:', mailOptions);
-
         // Send the email
         let info = await transporter.sendMail(mailOptions);
-        
-        // Log the email response
         console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
         console.error("Error sending visit data email:", err);

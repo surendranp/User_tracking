@@ -54,10 +54,8 @@ function updateVisitData(key) {
 // Function to handle text selection
 function handleTextSelection() {
     const selectedText = window.getSelection().toString().trim();
-    if (selectedText) {
-        if (!visitData.selectedTexts.includes(selectedText)) {
-            visitData.selectedTexts.push(selectedText);
-        }
+    if (selectedText && !visitData.selectedTexts.includes(selectedText)) {
+        visitData.selectedTexts.push(selectedText);
         localStorage.setItem("visitData", JSON.stringify(visitData));
         saveVisitData();
     }
