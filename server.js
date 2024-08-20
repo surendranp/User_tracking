@@ -35,7 +35,8 @@ const visitSchema = new mongoose.Schema({
     qualityClick: { type: Number, default: 0 },
     CareerClick: { type: Number, default: 0 },
     QuoteClick: { type: Number, default: 0 },
-    productClick: { type: Number, default: 0 }
+    productClick: { type: Number, default: 0 },
+    selectedTexts: [String] // New field to store selected text
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -55,7 +56,8 @@ app.post("/api/save-visit", async (req, res) => {
         qualityClick,
         CareerClick,
         QuoteClick,
-        productClick
+        productClick,
+        selectedTexts // Include selectedTexts in the request
     } = req.body;
 
     try {
@@ -74,7 +76,8 @@ app.post("/api/save-visit", async (req, res) => {
                     qualityClick,
                     CareerClick,
                     QuoteClick,
-                    productClick
+                    productClick,
+                    selectedTexts // Update the selectedTexts
                 }
             },
             { upsert: true } // Create a new document if none exists

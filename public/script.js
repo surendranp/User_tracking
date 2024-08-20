@@ -34,7 +34,8 @@ function fetchVisitData(sessionId) {
                     qualityClick: 0,
                     CareerClick: 0,
                     QuoteClick: 0,
-                    productClick: 0
+                    productClick: 0,
+                    selectedTexts: [] // Initialize selectedTexts array
                 };
             }
             localStorage.setItem("visitData", JSON.stringify(visitData));
@@ -48,6 +49,16 @@ function updateVisitData(key) {
     visitData.clickCount++;
     localStorage.setItem("visitData", JSON.stringify(visitData));
     saveVisitData();
+}
+
+// Function to handle text selection
+function handleTextSelection() {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText) {
+        visitData.selectedTexts.push(selectedText);
+        localStorage.setItem("visitData", JSON.stringify(visitData));
+        saveVisitData();
+    }
 }
 
 // Function to save visit data to the server
@@ -76,6 +87,9 @@ document.querySelector(".CareerButton").addEventListener("click", () => updateVi
 document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
 document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
 document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+
+// Add event listener for text selection
+document.addEventListener('mouseup', handleTextSelection);
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
