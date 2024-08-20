@@ -24,18 +24,18 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    clickCount: Number,
-    whatsappClicks: Number,
-    homeClicks: Number,
-    aboutClicks: Number,
-    contactNavClicks: Number,
-    paverClick: Number,
-    holloClick: Number,
-    flyashClick: Number,
-    qualityClick: Number,
-    CareerClick: Number,
-    QuoteClick: Number,
-    productClick: Number
+    clickCount: { type: Number, default: 0 },
+    whatsappClicks: { type: Number, default: 0 },
+    homeClicks: { type: Number, default: 0 },
+    aboutClicks: { type: Number, default: 0 },
+    contactNavClicks: { type: Number, default: 0 },
+    paverClick: { type: Number, default: 0 },
+    holloClick: { type: Number, default: 0 },
+    flyashClick: { type: Number, default: 0 },
+    qualityClick: { type: Number, default: 0 },
+    CareerClick: { type: Number, default: 0 },
+    QuoteClick: { type: Number, default: 0 },
+    productClick: { type: Number, default: 0 }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -59,42 +59,28 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        let visit = await Visit.findOne({ sessionId });
+        // Update existing visit document or create a new one
+        await Visit.findOneAndUpdate(
+            { sessionId },
+            {
+                $inc: {
+                    clickCount,
+                    whatsappClicks,
+                    homeClicks,
+                    aboutClicks,
+                    contactNavClicks,
+                    paverClick,
+                    holloClick,
+                    flyashClick,
+                    qualityClick,
+                    CareerClick,
+                    QuoteClick,
+                    productClick
+                }
+            },
+            { upsert: true, new: true }
+        );
 
-        if (visit) {
-            // Update existing visit document
-            visit.clickCount = clickCount;
-            visit.whatsappClicks = whatsappClicks;
-            visit.homeClicks = homeClicks;
-            visit.aboutClicks = aboutClicks;
-            visit.contactNavClicks = contactNavClicks;
-            visit.paverClick = paverClick;
-            visit.holloClick = holloClick;
-            visit.flyashClick = flyashClick;
-            visit.qualityClick = qualityClick;
-            visit.CareerClick = CareerClick;
-            visit.QuoteClick = QuoteClick;
-            visit.productClick = productClick;
-        } else {
-            // Create a new visit document
-            visit = new Visit({
-                sessionId,
-                clickCount,
-                whatsappClicks,
-                homeClicks,
-                aboutClicks,
-                contactNavClicks,
-                paverClick,
-                holloClick,
-                flyashClick,
-                qualityClick,
-                CareerClick,
-                QuoteClick,
-                productClick
-            });
-        }
-
-        await visit.save();
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
