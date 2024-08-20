@@ -29,6 +29,7 @@ document.querySelectorAll(".navButton").forEach(button => {
 
         if (buttonClass) {
             clickCounts[buttonClass]++;
+            console.log(`Button ${buttonClass} clicked. Total count: ${clickCounts[buttonClass]}`); // Debugging line
         }
     });
 });

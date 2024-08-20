@@ -79,8 +79,8 @@ app.post("/api/save-visit", async (req, res) => {
             visit.textSelections = textSelections;
             visit.selectedTexts = selectedTexts;
 
-            // Save the document with options to overwrite the version
-            await visit.save({ validateModifiedOnly: true });
+            await visit.save();
+            console.log("Updated visit document:", visit); // Debugging line
         } else {
             // Create a new visit document
             const newVisit = new Visit({
@@ -93,6 +93,7 @@ app.post("/api/save-visit", async (req, res) => {
                 selectedTexts
             });
             await newVisit.save();
+            console.log("Created new visit document:", newVisit); // Debugging line
         }
 
         res.status(200).json({ message: "Visit data saved successfully" });
