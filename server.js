@@ -25,7 +25,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     store: mongoStore,
-    cookie: { secure: false } // Set to true if you're using HTTPS
+    cookie: { secure: false } // Set to true if using HTTPS
 }));
 
 // Connect to MongoDB
