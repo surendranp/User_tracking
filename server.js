@@ -63,38 +63,10 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        let visit = await Visit.findOne({ sessionId });
-
-        if (visit) {
-            // Update existing visit document
-            visit.clickCount = clickCount;
-            visit.whatsappClicks = whatsappClicks;
-            visit.homeClicks = homeClicks;
-            visit.aboutClicks = aboutClicks;
-            visit.contactNavClicks = contactNavClicks;
-            visit.paverClick = paverClick;
-            visit.holloClick = holloClick;
-            visit.flyashClick = flyashClick;
-            visit.qualityClick = qualityClick;
-            visit.CareerClick = CareerClick;
-            visit.QuoteClick = QuoteClick;
-            visit.productClick = productClick;
-
-            // Update selected texts
-            selectedTexts.forEach(text => {
-                const index = visit.selectedTexts.indexOf(text);
-                if (index === -1) {
-                    visit.selectedTexts.push(text);
-                } else {
-                    // Remove duplicate text from the list
-                    visit.selectedTexts.splice(index, 1);
-                }
-            });
-
-        } else {
-            // Create a new visit document
-            visit = new Visit({
-                sessionId,
+        // Use findOneAndUpdate to avoid version conflicts
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId },
+            {
                 clickCount,
                 whatsappClicks,
                 homeClicks,
@@ -107,14 +79,23 @@ app.post("/api/save-visit", async (req, res) => {
                 CareerClick,
                 QuoteClick,
                 productClick,
-                selectedTexts: [...new Set(selectedTexts)] // Ensure uniqueness in initial array
-            });
-        }
+                $addToSet: { selectedTexts: { $each: selectedTexts } } // Use $addToSet to avoid duplicates
+            },
+            { new: true, upsert: true } // Create a new document if not found
+        );
 
-        await visit.save();
-        res.status(200).json({ message: "Visit data saved successfully" });
+        if (visit) {
+            res.status(200).json({ message: "Visit data saved successfully" });
+        } else {
+            res.status(404).json({ error: "Failed to save visit data" });
+        }
     } catch (err) {
-        console.error("Error saving visit:", err);
+        if (err.name === 'VersionError') {
+            console.error("VersionError:", err);
+            // Retry logic can be added here if necessary
+        } else {
+            console.error("Error saving visit:", err);
+        }
         res.status(500).json({ error: "Failed to save visit data" });
     }
 });
@@ -151,9 +132,7 @@ async function sendVisitDataEmail() {
             auth: {
                 user: process.env.EMAIL_USER, // Your email address
                 pass: process.env.EMAIL_PASS  // Your email password or app password
-            },
-            // logger: true, // Enable SMTP logs
-            // debug: true   // Enable SMTP debugging
+            }
         });
 
         // Define the email content
@@ -164,13 +143,8 @@ async function sendVisitDataEmail() {
             text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
         };
 
-        // Log the email options
-        console.log('Mail options:', mailOptions);
-
         // Send the email
         let info = await transporter.sendMail(mailOptions);
-        
-        // Log the email response
         console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
         console.error("Error sending visit data email:", err);
