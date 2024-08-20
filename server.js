@@ -104,6 +104,27 @@ app.get("/contact", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "contact.html"));
 });
 
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "career.html"));
+});
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "enquiry.html"));
+});
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "fly-ash-bricks.html"));
+});
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "hollow-blocks.html"));
+});
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "paver-blocks.html"));
+});
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "quality-control.html"));
+});
+app.get("/contact", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "services.html"));
+});
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
