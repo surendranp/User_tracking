@@ -4,9 +4,12 @@ if (!localStorage.getItem("sessionId")) {
     localStorage.setItem("sessionId", sessionId);
 }
 
-// Initialize or retrieve click counters
+// Initialize or retrieve click counters and other data
 let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     sessionId: sessionId,
+    startTime: new Date(),
+    endTime: null,
+    duration: 0,
     clickCount: 0,
     whatsappClicks: 0,
     homeClicks: 0,
@@ -18,7 +21,9 @@ let visitData = JSON.parse(localStorage.getItem("visitData")) || {
     qualityClick: 0,
     CareerClick: 0,
     QuoteClick: 0,
-    productClick: 0
+    productClick: 0,
+    textSelections: 0,
+    selectedTexts: []
 };
 
 // Function to update visit data
@@ -30,6 +35,9 @@ function updateVisitData(key) {
 
 // Function to save visit data to the server
 function saveVisitData() {
+    visitData.endTime = new Date();
+    visitData.duration = Math.round((visitData.endTime - visitData.startTime) / 1000); // Duration in seconds
+
     fetch("/api/save-visit", {
         method: "POST",
         headers: {
@@ -54,6 +62,27 @@ document.querySelector(".CareerButton").addEventListener("click", () => updateVi
 document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
 document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
 document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+
+// Track text selections
+document.addEventListener("mouseup", () => {
+    const selectedText = window.getSelection().toString().trim();
+    if (selectedText) {
+        visitData.textSelections++;
+        visitData.selectedTexts.push(selectedText);
+        localStorage.setItem("visitData", JSON.stringify(visitData));
+
+        fetch("/api/save-text-selection", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ sessionId, selectedText })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Text selection saved:", data))
+        .catch(error => console.error("Error saving text selection:", error));
+    }
+});
 
 // Save visit data when the page is unloaded
 window.addEventListener("beforeunload", saveVisitData);
