@@ -59,11 +59,10 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
-        // Update existing visit document or create a new one
         await Visit.findOneAndUpdate(
             { sessionId },
             {
-                $inc: {
+                $set: {
                     clickCount,
                     whatsappClicks,
                     homeClicks,
@@ -78,9 +77,8 @@ app.post("/api/save-visit", async (req, res) => {
                     productClick
                 }
             },
-            { upsert: true, new: true }
+            { upsert: true } // Create a new document if none exists
         );
-
         res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         console.error("Error saving visit:", err);
