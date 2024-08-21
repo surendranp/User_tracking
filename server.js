@@ -67,18 +67,18 @@ app.post("/api/save-visit", async (req, res) => {
 
         if (visit) {
             // Update existing visit document
-            visit.clickCount = clickCount;
-            visit.whatsappClicks = whatsappClicks;
-            visit.homeClicks = homeClicks;
-            visit.aboutClicks = aboutClicks;
-            visit.contactNavClicks = contactNavClicks;
-            visit.paverClick = paverClick;
-            visit.holloClick = holloClick;
-            visit.flyashClick = flyashClick;
-            visit.qualityClick = qualityClick;
-            visit.CareerClick = CareerClick;
-            visit.QuoteClick = QuoteClick;
-            visit.productClick = productClick;
+            visit.clickCount = clickCount || visit.clickCount;
+            visit.whatsappClicks = whatsappClicks || visit.whatsappClicks;
+            visit.homeClicks = homeClicks || visit.homeClicks;
+            visit.aboutClicks = aboutClicks || visit.aboutClicks;
+            visit.contactNavClicks = contactNavClicks || visit.contactNavClicks;
+            visit.paverClick = paverClick || visit.paverClick;
+            visit.holloClick = holloClick || visit.holloClick;
+            visit.flyashClick = flyashClick || visit.flyashClick;
+            visit.qualityClick = qualityClick || visit.qualityClick;
+            visit.CareerClick = CareerClick || visit.CareerClick;
+            visit.QuoteClick = QuoteClick || visit.QuoteClick;
+            visit.productClick = productClick || visit.productClick;
 
             // Prevent duplicate text selections
             selectedTexts.forEach(text => {
@@ -91,18 +91,18 @@ app.post("/api/save-visit", async (req, res) => {
             // Create a new visit document
             visit = new Visit({
                 sessionId,
-                clickCount,
-                whatsappClicks,
-                homeClicks,
-                aboutClicks,
-                contactNavClicks,
-                paverClick,
-                holloClick,
-                flyashClick,
-                qualityClick,
-                CareerClick,
-                QuoteClick,
-                productClick,
+                clickCount: clickCount || 0,
+                whatsappClicks: whatsappClicks || 0,
+                homeClicks: homeClicks || 0,
+                aboutClicks: aboutClicks || 0,
+                contactNavClicks: contactNavClicks || 0,
+                paverClick: paverClick || 0,
+                holloClick: holloClick || 0,
+                flyashClick: flyashClick || 0,
+                qualityClick: qualityClick || 0,
+                CareerClick: CareerClick || 0,
+                QuoteClick: QuoteClick || 0,
+                productClick: productClick || 0,
                 selectedTexts: [...new Set(selectedTexts)] // Ensure uniqueness in initial array
             });
         }
@@ -130,7 +130,7 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
         console.error("Error fetching visit data:", err);
         res.status(500).json({ error: "Failed to fetch visit data" });
     }
-});
+}); 
 
 // Function to send email with visit data
 async function sendVisitDataEmail() {
@@ -138,18 +138,25 @@ async function sendVisitDataEmail() {
         // Fetch all visit data
         const visits = await Visit.find();
 
-        // Generate HTML table
-        const tableRows = visits.map(visit => {
-            return `
-                <tr>
-                    <td>Home, About, Contact, Paver, Hollow, Flyash, Quality, Career, Quote, Product, Whatsapp</td>
-                    <td>${visit.homeClicks}, ${visit.aboutClicks}, ${visit.contactNavClicks}, ${visit.paverClick}, ${visit.holloClick}, ${visit.flyashClick}, ${visit.qualityClick}, ${visit.CareerClick}, ${visit.QuoteClick}, ${visit.productClick}, ${visit.whatsappClicks}</td>
-                    <td>${new Date().toLocaleDateString()}</td>
-                    <td>${new Date().toLocaleDateString()}</td>
-                    <td>${new Date().toLocaleTimeString()}</td>
-                </tr>
-            `;
-        }).join('');
+        // Generate HTML table with separate rows for each button
+        const tableRows = `
+            <tr><td>Home</td><td>${visits.reduce((sum, visit) => sum + visit.homeClicks, 0)}</td></tr>
+            <tr><td>About</td><td>${visits.reduce((sum, visit) => sum + visit.aboutClicks, 0)}</td></tr>
+            <tr><td>Contact</td><td>${visits.reduce((sum, visit) => sum + visit.contactNavClicks, 0)}</td></tr>
+            <tr><td>Paver</td><td>${visits.reduce((sum, visit) => sum + visit.paverClick, 0)}</td></tr>
+            <tr><td>Hollow</td><td>${visits.reduce((sum, visit) => sum + visit.holloClick, 0)}</td></tr>
+            <tr><td>Flyash</td><td>${visits.reduce((sum, visit) => sum + visit.flyashClick, 0)}</td></tr>
+            <tr><td>Quality</td><td>${visits.reduce((sum, visit) => sum + visit.qualityClick, 0)}</td></tr>
+            <tr><td>Career</td><td>${visits.reduce((sum, visit) => sum + visit.CareerClick, 0)}</td></tr>
+            <tr><td>Quote</td><td>${visits.reduce((sum, visit) => sum + visit.QuoteClick, 0)}</td></tr>
+            <tr><td>Product</td><td>${visits.reduce((sum, visit) => sum + visit.productClick, 0)}</td></tr>
+            <tr><td>Whatsapp</td><td>${visits.reduce((sum, visit) => sum + visit.whatsappClicks, 0)}</td></tr>
+            <tr>
+            <td>${new Date().toLocaleDateString()}</td>
+            <td>${new Date().toLocaleDateString()}</td>
+              <td>${new Date().toLocaleTimeString()}</td>
+              </tr>
+        `;
 
         // Create a transporter for sending emails
         let transporter = nodemailer.createTransport({
@@ -172,9 +179,6 @@ async function sendVisitDataEmail() {
                         <tr>
                             <th>Events</th>
                             <th>ClickCounts</th>
-                            <th>From Date</th>
-                            <th>To Date</th>
-                            <th>Time</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -191,7 +195,6 @@ async function sendVisitDataEmail() {
         console.error("Error sending visit data email:", err);
     }
 }
-
 // Schedule a task to send visit data every 12 hours using node-schedule
 schedule.scheduleJob('* * * *', () => {
     console.log('Executing cron job to send visit data email');
