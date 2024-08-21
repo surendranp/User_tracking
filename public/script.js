@@ -23,18 +23,19 @@ function fetchVisitData(sessionId) {
                 // Initialize visit data if no existing data is found
                 visitData = {
                     sessionId: sessionId,
-                    clickCount: 0,
-                    whatsappClicks: 0,
-                    homeClicks: 0,
-                    aboutClicks: 0,
-                    contactNavClicks: 0,
-                    paverClick: 0,
-                    holloClick: 0,
-                    flyashClick: 0,
-                    qualityClick: 0,
-                    CareerClick: 0,
-                    QuoteClick: 0,
-                    productClick: 0,
+                    menu: 0,
+                    home_Button_Clicks: 0,
+                    about_Button_Clicks: 0,
+                    contact_ButtonNav_Clicks: 0,
+                    whatsapp_Button_Clicks: 0,
+                    product_Button_Click: 0,
+                    paverblock_Button_Click: 0,
+                    holloblock_Button_Click: 0,
+                    flyash_Button_Click: 0,
+                    quality_Button_Click: 0,
+                    Career_Button_Click: 0,
+                    Quote_Button_Click: 0,
+                   
                     selectedTexts: [] // Initialize selectedTexts array
                 };
             }
@@ -46,7 +47,7 @@ function fetchVisitData(sessionId) {
 // Function to update visit data
 function updateVisitData(key) {
     visitData[key]++;
-    visitData.clickCount++;
+    visitData.menu++;
     localStorage.setItem("visitData", JSON.stringify(visitData));
     saveVisitData();
 }
@@ -82,17 +83,18 @@ function saveVisitData() {
 }
 
 // Button click event listeners
-document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('homeClicks'));
-document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('aboutClicks'));
-document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contactNavClicks'));
-document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverClick'));
-document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloClick'));
-document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyashClick'));
-document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('qualityClick'));
-document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('CareerClick'));
-document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('QuoteClick'));
-document.querySelector(".productButton").addEventListener("click", () => updateVisitData('productClick'));
-document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsappClicks'));
+document.querySelector(".homeButton").addEventListener("click", () => updateVisitData('home_Button_Clicks'));
+document.querySelector(".aboutButton").addEventListener("click", () => updateVisitData('about_Button_Clicks'));
+document.querySelector(".contactNavButton").addEventListener("click", () => updateVisitData('contact_ButtonNav_Clicks'));
+document.querySelector(".whatsappButton").addEventListener("click", () => updateVisitData('whatsapp_Button_Clicks'));
+document.querySelector(".productButton").addEventListener("click", () => updateVisitData('product_Button_Click'));
+document.querySelector(".paverButton").addEventListener("click", () => updateVisitData('paverblock_Button_Click'));
+document.querySelector(".hollowButton").addEventListener("click", () => updateVisitData('holloblock_Button_Click'));
+document.querySelector(".flyashButton").addEventListener("click", () => updateVisitData('flyash_Button_Click'));
+document.querySelector(".qualityButton").addEventListener("click", () => updateVisitData('quality_Button_Click'));
+document.querySelector(".CareerButton").addEventListener("click", () => updateVisitData('Career_Button_Click'));
+document.querySelector(".QuoteButton").addEventListener("click", () => updateVisitData('Quote_Button_Click'));
+
 
 // Add event listener for text selection
 document.addEventListener('mouseup', handleTextSelection);

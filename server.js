@@ -26,18 +26,19 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    clickCount: { type: Number, default: 0 },
-    whatsappClicks: { type: Number, default: 0 },
-    homeClicks: { type: Number, default: 0 },
-    aboutClicks: { type: Number, default: 0 },
-    contactNavClicks: { type: Number, default: 0 },
-    paverClick: { type: Number, default: 0 },
-    holloClick: { type: Number, default: 0 },
-    flyashClick: { type: Number, default: 0 },
-    qualityClick: { type: Number, default: 0 },
-    CareerClick: { type: Number, default: 0 },
-    QuoteClick: { type: Number, default: 0 },
-    productClick: { type: Number, default: 0 },
+    menu: { type: Number, default: 0 },
+    home_Button_Clicks: { type: Number, default: 0 },
+    about_Button_Clicks: { type: Number, default: 0 },
+    contact_ButtonNav_Clicks: { type: Number, default: 0 },
+    whatsapp_Button_Clicks: { type: Number, default: 0 },
+    product_Button_Click: { type: Number, default: 0 },
+    paverblock_Button_Click: { type: Number, default: 0 },
+    holloblock_Button_Click: { type: Number, default: 0 },
+    flyash_Button_Click: { type: Number, default: 0 },
+    quality_Button_Click: { type: Number, default: 0 },
+    Career_Button_Click: { type: Number, default: 0 },
+    Quote_Button_Click: { type: Number, default: 0 },
+   
     selectedTexts: { type: [String], default: [] } // New field to store selected text
 });
 
@@ -47,18 +48,19 @@ const Visit = mongoose.model("Visit", visitSchema);
 app.post("/api/save-visit", async (req, res) => {
     const {
         sessionId,
-        clickCount,
-        whatsappClicks,
-        homeClicks,
-        aboutClicks,
-        contactNavClicks,
-        paverClick,
-        holloClick,
-        flyashClick,
-        qualityClick,
-        CareerClick,
-        QuoteClick,
-        productClick,
+        menu,
+        home_Button_Clicks,
+        about_Button_Clicks,
+        contact_ButtonNav_Clicks,
+        whatsapp_Button_Clicks,
+        product_Button_Click,
+        paverblock_Button_Click,
+        holloblock_Button_Click,
+        flyash_Button_Click,
+        quality_Button_Click,
+        Career_Button_Click,
+        Quote_Button_Click,
+        
         selectedTexts // Include selectedTexts in the request
     } = req.body;
 
@@ -67,18 +69,19 @@ app.post("/api/save-visit", async (req, res) => {
         const visit = await Visit.findOneAndUpdate(
             { sessionId },
             {
-                clickCount,
-                whatsappClicks,
-                homeClicks,
-                aboutClicks,
-                contactNavClicks,
-                paverClick,
-                holloClick,
-                flyashClick,
-                qualityClick,
-                CareerClick,
-                QuoteClick,
-                productClick,
+                menu,
+                home_Button_Clicks,
+                about_Button_Clicks,
+                contact_ButtonNav_Clicks,
+                whatsapp_Button_Clicks,
+                product_Button_Click,
+                paverblock_Button_Click,
+                holloblock_Button_Click,
+                flyash_Button_Click,
+                quality_Button_Click,
+                Career_Button_Click,
+                Quote_Button_Click,
+                
                 $addToSet: { selectedTexts: { $each: selectedTexts } } // Use $addToSet to avoid duplicates
             },
             { new: true, upsert: true } // Create a new document if not found
