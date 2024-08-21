@@ -39,7 +39,7 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-    selectedTexts: { type: [String], default: [] } // New field to store selected text
+    selectedTexts: { type: [String], default: [] }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -60,7 +60,7 @@ app.post("/api/save-visit", async (req, res) => {
         quality_Button_Click,
         Career_Button_Click,
         Quote_Button_Click,
-        selectedTexts // Include selectedTexts in the request
+        selectedTexts
     } = req.body;
 
     try {
@@ -79,9 +79,9 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
-                $addToSet: { selectedTexts: { $each: selectedTexts } } // Use $addToSet to avoid duplicates
+                $addToSet: { selectedTexts: { $each: selectedTexts } }
             },
-            { new: true, upsert: true } // Create a new document if not found
+            { new: true, upsert: true }
         );
 
         if (visit) {
@@ -178,8 +178,8 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 12 hours
-nodeCron.schedule('0 */12 * * *', () => {
+// Schedule a task to send visit data every 1 minute
+nodeCron.schedule('*/1 * * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
