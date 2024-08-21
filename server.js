@@ -193,7 +193,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule a task to send visit data every 12 hours using node-schedule
-schedule.scheduleJob('0 */12 * * *', () => {
+schedule.scheduleJob('* * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
