@@ -3,7 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const nodeCron = require("node-cron");
+const Agenda = require("agenda");
 const nodemailer = require("nodemailer");
 
 const app = express();
@@ -171,17 +171,24 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 12 hours
-nodeCron.schedule('* * * *', () => {
+// Setup Agenda and define job
+const mongoConnectionString = process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB";
+const agenda = new Agenda({ db: { address: mongoConnectionString } });
+
+agenda.define('send visit data email', async job => {
     try {
-        console.log('Executing cron job to send visit data email');
-        sendVisitDataEmail();
+        console.log('Executing agenda job to send visit data email');
+        await sendVisitDataEmail();
     } catch (err) {
-        console.error("Error executing cron job:", err);
+        console.error("Error executing agenda job:", err);
     }
 });
 
-// Start the Server
+// Schedule job to run every 12 hours
+agenda.every('12 hours', 'send visit data email');
+
+// Start the server and Agenda
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
+    agenda.start();
 });
