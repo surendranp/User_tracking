@@ -38,8 +38,7 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-   
-    selectedTexts: { type: [String], default: [] } // New field to store selected text
+    selectedTexts: { type: [String], default: [] }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -60,12 +59,10 @@ app.post("/api/save-visit", async (req, res) => {
         quality_Button_Click,
         Career_Button_Click,
         Quote_Button_Click,
-        
-        selectedTexts // Include selectedTexts in the request
+        selectedTexts
     } = req.body;
 
     try {
-        // Use findOneAndUpdate to avoid version conflicts
         const visit = await Visit.findOneAndUpdate(
             { sessionId },
             {
@@ -81,10 +78,9 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
-                
-                $addToSet: { selectedTexts: { $each: selectedTexts } } // Use $addToSet to avoid duplicates
+                $addToSet: { selectedTexts: { $each: selectedTexts } }
             },
-            { new: true, upsert: true } // Create a new document if not found
+            { new: true, upsert: true }
         );
 
         if (visit) {
@@ -95,7 +91,6 @@ app.post("/api/save-visit", async (req, res) => {
     } catch (err) {
         if (err.name === 'VersionError') {
             console.error("VersionError:", err);
-            // Retry logic can be added here if necessary
         } else {
             console.error("Error saving visit:", err);
         }
@@ -126,8 +121,53 @@ async function sendVisitDataEmail() {
         // Fetch all visit data
         const visits = await Visit.find();
 
-        // Log visit data
-        console.log('Fetched visits:', visits);
+        // Generate HTML table rows for each button
+        const tableRows = `
+            <tr>
+                <td>Home</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td>
+            </tr>
+            <tr>
+                <td>About</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td>
+            </tr>
+            <tr>
+                <td>Contact</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0)}</td>
+            </tr>
+            <tr>
+                <td>Whatsapp</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0)}</td>
+            </tr>
+            <tr>
+                <td>Product</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.product_Button_Click, 0)}</td>
+            </tr>
+            <tr>
+                <td>Paver</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0)}</td>
+            </tr>
+            <tr>
+                <td>Hollow</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0)}</td>
+            </tr>
+            <tr>
+                <td>Flyash</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0)}</td>
+            </tr>
+            <tr>
+                <td>Quality</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0)}</td>
+            </tr>
+            <tr>
+                <td>Career</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0)}</td>
+            </tr>
+            <tr>
+                <td>Quote</td>
+                <td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td>
+            </tr>
+        `;
 
         // Create a transporter for sending emails
         let transporter = nodemailer.createTransport({
@@ -143,7 +183,23 @@ async function sendVisitDataEmail() {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
-            text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
+            html: `
+                <h1>Visit Data Report</h1>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Events</th>
+                            <th>Click Counts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <p>From Date: 20.08.2024</p>
+                <p>To Date: 21.08.2024</p>
+                <p>Time: ${new Date().toLocaleTimeString()}</p>
+            `
         };
 
         // Send the email
@@ -155,7 +211,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule a task to send visit data every 12 hours
-nodeCron.schedule('0 */12 * * *', () => {
+nodeCron.schedule(' * * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
