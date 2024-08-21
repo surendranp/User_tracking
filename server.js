@@ -3,8 +3,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const nodeCron = require("node-cron");
 const nodemailer = require("nodemailer");
+const schedule = require('node-schedule'); // Use node-schedule instead of node-cron
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -192,8 +192,8 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 12 hours
-nodeCron.schedule('* * * *', () => {
+// Schedule a task to send visit data every 12 hours using node-schedule
+schedule.scheduleJob('0 */12 * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
