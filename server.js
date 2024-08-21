@@ -173,15 +173,15 @@ async function sendVisitDataEmail() {
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
-                user: process.env.EMAIL_USER, // Your email address
-                pass: process.env.EMAIL_PASS  // Your email password or app password
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
 
         // Define the email content
         let mailOptions = {
             from: process.env.EMAIL_USER,
-            to: 'surayrk315@gmail.com', // Replace with the recipient's email address
+            to: 'surayrk315@gmail.com',
             subject: 'Automatic Visit Data Update',
             html: `
                 <h1>Visit Data Report</h1>
@@ -211,7 +211,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule a task to send visit data every 12 hours
-nodeCron.schedule(' * * * *', () => {
+nodeCron.schedule('0 */12 * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
