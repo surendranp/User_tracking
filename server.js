@@ -118,58 +118,21 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        // Fetch all visit data
         const visits = await Visit.find();
-
-        // Generate HTML table rows for each button
         const tableRows = `
-            <tr>
-                <td>Home</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td>
-            </tr>
-            <tr>
-                <td>About</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td>
-            </tr>
-            <tr>
-                <td>Contact</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0)}</td>
-            </tr>
-            <tr>
-                <td>Whatsapp</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0)}</td>
-            </tr>
-            <tr>
-                <td>Product</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.product_Button_Click, 0)}</td>
-            </tr>
-            <tr>
-                <td>Paver</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0)}</td>
-            </tr>
-            <tr>
-                <td>Hollow</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0)}</td>
-            </tr>
-            <tr>
-                <td>Flyash</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0)}</td>
-            </tr>
-            <tr>
-                <td>Quality</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0)}</td>
-            </tr>
-            <tr>
-                <td>Career</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0)}</td>
-            </tr>
-            <tr>
-                <td>Quote</td>
-                <td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td>
-            </tr>
+            <tr><td>Home</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
+            <tr><td>About</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
+            <tr><td>Contact</td><td>${visits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0)}</td></tr>
+            <tr><td>Whatsapp</td><td>${visits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0)}</td></tr>
+            <tr><td>Product</td><td>${visits.reduce((acc, visit) => acc + visit.product_Button_Click, 0)}</td></tr>
+            <tr><td>Paver</td><td>${visits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0)}</td></tr>
+            <tr><td>Hollow</td><td>${visits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0)}</td></tr>
+            <tr><td>Flyash</td><td>${visits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0)}</td></tr>
+            <tr><td>Quality</td><td>${visits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0)}</td></tr>
+            <tr><td>Career</td><td>${visits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0)}</td></tr>
+            <tr><td>Quote</td><td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td></tr>
         `;
 
-        // Create a transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
@@ -178,7 +141,6 @@ async function sendVisitDataEmail() {
             }
         });
 
-        // Define the email content
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com',
@@ -202,7 +164,6 @@ async function sendVisitDataEmail() {
             `
         };
 
-        // Send the email
         let info = await transporter.sendMail(mailOptions);
         console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
@@ -212,8 +173,12 @@ async function sendVisitDataEmail() {
 
 // Schedule a task to send visit data every 12 hours
 nodeCron.schedule('* * * *', () => {
-    console.log('Executing cron job to send visit data email');
-    sendVisitDataEmail();
+    try {
+        console.log('Executing cron job to send visit data email');
+        sendVisitDataEmail();
+    } catch (err) {
+        console.error("Error executing cron job:", err);
+    }
 });
 
 // Start the Server
