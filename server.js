@@ -26,19 +26,18 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    menu: { type: Number, default: 0 },
-    home_Button_Clicks: { type: Number, default: 0 },
-    about_Button_Clicks: { type: Number, default: 0 },
-    contact_ButtonNav_Clicks: { type: Number, default: 0 },
-    whatsapp_Button_Clicks: { type: Number, default: 0 },
-    product_Button_Click: { type: Number, default: 0 },
-    paverblock_Button_Click: { type: Number, default: 0 },
-    holloblock_Button_Click: { type: Number, default: 0 },
-    flyash_Button_Click: { type: Number, default: 0 },
-    quality_Button_Click: { type: Number, default: 0 },
-    Career_Button_Click: { type: Number, default: 0 },
-    Quote_Button_Click: { type: Number, default: 0 },
-   
+    clickCount: { type: Number, default: 0 },
+    whatsappClicks: { type: Number, default: 0 },
+    homeClicks: { type: Number, default: 0 },
+    aboutClicks: { type: Number, default: 0 },
+    contactNavClicks: { type: Number, default: 0 },
+    paverClick: { type: Number, default: 0 },
+    holloClick: { type: Number, default: 0 },
+    flyashClick: { type: Number, default: 0 },
+    qualityClick: { type: Number, default: 0 },
+    CareerClick: { type: Number, default: 0 },
+    QuoteClick: { type: Number, default: 0 },
+    productClick: { type: Number, default: 0 },
     selectedTexts: { type: [String], default: [] } // New field to store selected text
 });
 
@@ -48,57 +47,70 @@ const Visit = mongoose.model("Visit", visitSchema);
 app.post("/api/save-visit", async (req, res) => {
     const {
         sessionId,
-        menu,
-        home_Button_Clicks,
-        about_Button_Clicks,
-        contact_ButtonNav_Clicks,
-        whatsapp_Button_Clicks,
-        product_Button_Click,
-        paverblock_Button_Click,
-        holloblock_Button_Click,
-        flyash_Button_Click,
-        quality_Button_Click,
-        Career_Button_Click,
-        Quote_Button_Click,
-        
+        clickCount,
+        whatsappClicks,
+        homeClicks,
+        aboutClicks,
+        contactNavClicks,
+        paverClick,
+        holloClick,
+        flyashClick,
+        qualityClick,
+        CareerClick,
+        QuoteClick,
+        productClick,
         selectedTexts // Include selectedTexts in the request
     } = req.body;
 
     try {
-        // Use findOneAndUpdate to avoid version conflicts
-        const visit = await Visit.findOneAndUpdate(
-            { sessionId },
-            {
-                menu,
-                home_Button_Clicks,
-                about_Button_Clicks,
-                contact_ButtonNav_Clicks,
-                whatsapp_Button_Clicks,
-                product_Button_Click,
-                paverblock_Button_Click,
-                holloblock_Button_Click,
-                flyash_Button_Click,
-                quality_Button_Click,
-                Career_Button_Click,
-                Quote_Button_Click,
-                
-                $addToSet: { selectedTexts: { $each: selectedTexts } } // Use $addToSet to avoid duplicates
-            },
-            { new: true, upsert: true } // Create a new document if not found
-        );
+        let visit = await Visit.findOne({ sessionId });
 
         if (visit) {
-            res.status(200).json({ message: "Visit data saved successfully" });
+            // Update existing visit document
+            visit.clickCount = clickCount;
+            visit.whatsappClicks = whatsappClicks;
+            visit.homeClicks = homeClicks;
+            visit.aboutClicks = aboutClicks;
+            visit.contactNavClicks = contactNavClicks;
+            visit.paverClick = paverClick;
+            visit.holloClick = holloClick;
+            visit.flyashClick = flyashClick;
+            visit.qualityClick = qualityClick;
+            visit.CareerClick = CareerClick;
+            visit.QuoteClick = QuoteClick;
+            visit.productClick = productClick;
+
+            // Prevent duplicate text selections
+            selectedTexts.forEach(text => {
+                if (!visit.selectedTexts.includes(text)) {
+                    visit.selectedTexts.push(text);
+                }
+            });
+
         } else {
-            res.status(404).json({ error: "Failed to save visit data" });
+            // Create a new visit document
+            visit = new Visit({
+                sessionId,
+                clickCount,
+                whatsappClicks,
+                homeClicks,
+                aboutClicks,
+                contactNavClicks,
+                paverClick,
+                holloClick,
+                flyashClick,
+                qualityClick,
+                CareerClick,
+                QuoteClick,
+                productClick,
+                selectedTexts: [...new Set(selectedTexts)] // Ensure uniqueness in initial array
+            });
         }
+
+        await visit.save();
+        res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
-        if (err.name === 'VersionError') {
-            console.error("VersionError:", err);
-            // Retry logic can be added here if necessary
-        } else {
-            console.error("Error saving visit:", err);
-        }
+        console.error("Error saving visit:", err);
         res.status(500).json({ error: "Failed to save visit data" });
     }
 });
@@ -126,8 +138,18 @@ async function sendVisitDataEmail() {
         // Fetch all visit data
         const visits = await Visit.find();
 
-        // Log visit data
-        console.log('Fetched visits:', visits);
+        // Generate HTML table
+        const tableRows = visits.map(visit => {
+            return `
+                <tr>
+                    <td>Home, About, Contact, Paver, Hollow, Flyash, Quality, Career, Quote, Product, Whatsapp</td>
+                    <td>${visit.homeClicks}, ${visit.aboutClicks}, ${visit.contactNavClicks}, ${visit.paverClick}, ${visit.holloClick}, ${visit.flyashClick}, ${visit.qualityClick}, ${visit.CareerClick}, ${visit.QuoteClick}, ${visit.productClick}, ${visit.whatsappClicks}</td>
+                    <td>${new Date().toLocaleDateString()}</td>
+                    <td>${new Date().toLocaleDateString()}</td>
+                    <td>${new Date().toLocaleTimeString()}</td>
+                </tr>
+            `;
+        }).join('');
 
         // Create a transporter for sending emails
         let transporter = nodemailer.createTransport({
@@ -143,7 +165,23 @@ async function sendVisitDataEmail() {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
-            text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
+            html: `
+                <h1>Visit Data Report</h1>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Events</th>
+                            <th>ClickCounts</th>
+                            <th>From Date</th>
+                            <th>To Date</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+            `
         };
 
         // Send the email
@@ -155,7 +193,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule a task to send visit data every 12 hours
-nodeCron.schedule('0 */12 * * *', () => {
+nodeCron.schedule('* * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
