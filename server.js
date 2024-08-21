@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const nodeCron = require("node-cron");
 const nodemailer = require("nodemailer");
+const moment = require("moment-timezone");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,7 +39,6 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-   
     selectedTexts: { type: [String], default: [] } // New field to store selected text
 });
 
@@ -60,12 +60,10 @@ app.post("/api/save-visit", async (req, res) => {
         quality_Button_Click,
         Career_Button_Click,
         Quote_Button_Click,
-        
         selectedTexts // Include selectedTexts in the request
     } = req.body;
 
     try {
-        // Use findOneAndUpdate to avoid version conflicts
         const visit = await Visit.findOneAndUpdate(
             { sessionId },
             {
@@ -81,7 +79,6 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
-                
                 $addToSet: { selectedTexts: { $each: selectedTexts } } // Use $addToSet to avoid duplicates
             },
             { new: true, upsert: true } // Create a new document if not found
@@ -95,7 +92,6 @@ app.post("/api/save-visit", async (req, res) => {
     } catch (err) {
         if (err.name === 'VersionError') {
             console.error("VersionError:", err);
-            // Retry logic can be added here if necessary
         } else {
             console.error("Error saving visit:", err);
         }
@@ -123,18 +119,30 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        // Fetch all visit data
         const visits = await Visit.find();
+        const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss"); // Current time in IST
 
-        // Log visit data
-        console.log('Fetched visits:', visits);
+        // Create table rows
+        const tableRows = `
+            <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
+            <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
+            <tr><td>Contact Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0)}</td></tr>
+            <tr><td>Whatsapp Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0)}</td></tr>
+            <tr><td>Product Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.product_Button_Click, 0)}</td></tr>
+            <tr><td>Paverblock Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0)}</td></tr>
+            <tr><td>Holloblock Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0)}</td></tr>
+            <tr><td>Flyash Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0)}</td></tr>
+            <tr><td>Quality Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0)}</td></tr>
+            <tr><td>Career Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0)}</td></tr>
+            <tr><td>Quote Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td></tr>
+        `;
 
-        // Create a transporter for sending emails
+        // Create transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
-                user: process.env.EMAIL_USER, // Your email address
-                pass: process.env.EMAIL_PASS  // Your email password or app password
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
 
@@ -143,7 +151,23 @@ async function sendVisitDataEmail() {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
-            text: JSON.stringify(visits, null, 2) // Convert visit data to a readable format
+            html: `
+                <h1>Visit Data Report</h1>
+                <table border="1" style="border-collapse: collapse; width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Events</th>
+                            <th>Click Counts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+                <p>From Date: ${moment().startOf('day').format("YYYY-MM-DD")}</p>
+                <p>To Date: ${moment().format("YYYY-MM-DD")}</p>
+                <p>Time: ${now} IST</p>
+            `
         };
 
         // Send the email
