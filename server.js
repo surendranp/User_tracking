@@ -40,7 +40,7 @@ const visitSchema = new mongoose.Schema({
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
     selectedTexts: { type: [String], default: [] },
-    visitTime: { type: Date, default: Date.now }  // Timestamp for each visit
+    visitTime: { type: Date, default: Date.now } // Timestamp of the visit
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -80,7 +80,8 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
-                $addToSet: { selectedTexts: { $each: selectedTexts } }
+                $addToSet: { selectedTexts: { $each: selectedTexts } },
+                visitTime: new Date() // Update visit time
             },
             { new: true, upsert: true }
         );
@@ -120,25 +121,29 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        const startTime = moment().startOf('day').subtract(1, 'days').set({ hour: 7, minute: 0, second: 0, millisecond: 0 }).toDate();
-        const endTime = moment().startOf('day').set({ hour: 7, minute: 0, second: 0, millisecond: 0 }).toDate();
+        // Define the time range for the report
+        const endTime = moment().startOf('day'); // 7:00 AM today
+        const startTime = endTime.clone().subtract(1, 'days'); // 7:00 AM yesterday
 
-        const visits = await Visit.find({ visitTime: { $gte: startTime, $lt: endTime } });
+        // Fetch visit data within the time range
+        const visits = await Visit.find({
+            visitTime: { $gte: startTime.toDate(), $lt: endTime.toDate() }
+        });
 
-        const totalUsersCount = await Visit.distinct('sessionId').countDocuments({ visitTime: { $gte: startTime, $lt: endTime } });
-        const totalPagesViewed = visits.reduce((acc, visit) => {
-            return acc + visit.home_Button_Clicks +
-                        visit.about_Button_Clicks +
-                        visit.contact_ButtonNav_Clicks +
-                        visit.whatsapp_Button_Clicks +
-                        visit.product_Button_Click +
-                        visit.paverblock_Button_Click +
-                        visit.holloblock_Button_Click +
-                        visit.flyash_Button_Click +
-                        visit.quality_Button_Click +
-                        visit.Career_Button_Click +
-                        visit.Quote_Button_Click;
-        }, 0);
+        // Calculate total users and page views
+        const totalUsers = new Set(visits.map(visit => visit.sessionId)).size;
+        const totalPagesViewed = visits.reduce((acc, visit) => acc +
+            visit.home_Button_Clicks +
+            visit.about_Button_Clicks +
+            visit.contact_ButtonNav_Clicks +
+            visit.whatsapp_Button_Clicks +
+            visit.product_Button_Click +
+            visit.paverblock_Button_Click +
+            visit.holloblock_Button_Click +
+            visit.flyash_Button_Click +
+            visit.quality_Button_Click +
+            visit.Career_Button_Click +
+            visit.Quote_Button_Click, 0);
 
         // Create table rows
         const tableRows = `
@@ -170,7 +175,7 @@ async function sendVisitDataEmail() {
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
             html: `
-                <h1> Users Visit Data Report for Dhaya Industries</h1>
+                <h1>Users Visit Data Report for Dhaya Industries</h1>
                 <table border="1" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
@@ -182,7 +187,7 @@ async function sendVisitDataEmail() {
                         ${tableRows}
                     </tbody>
                 </table>
-                <p>Total Users Count: ${totalUsersCount}</p>
+                <p>Total Users: ${totalUsers}</p>
                 <p>Total Pages Viewed: ${totalPagesViewed}</p>
                 <p>From Date: ${moment(startTime).format("YYYY-MM-DD")}</p>
                 <p>To Date: ${moment(endTime).format("YYYY-MM-DD")}</p>
