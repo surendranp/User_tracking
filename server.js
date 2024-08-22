@@ -27,7 +27,6 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
-    menu: { type: Number, default: 0 },
     home_Button_Clicks: { type: Number, default: 0 },
     about_Button_Clicks: { type: Number, default: 0 },
     contact_ButtonNav_Clicks: { type: Number, default: 0 },
@@ -45,88 +44,20 @@ const visitSchema = new mongoose.Schema({
 
 const Visit = mongoose.model("Visit", visitSchema);
 
-// API Endpoint to Save Visit Data
-app.post("/api/save-visit", async (req, res) => {
-    const {
-        sessionId,
-        menu,
-        home_Button_Clicks,
-        about_Button_Clicks,
-        contact_ButtonNav_Clicks,
-        whatsapp_Button_Clicks,
-        product_Button_Click,
-        paverblock_Button_Click,
-        holloblock_Button_Click,
-        flyash_Button_Click,
-        quality_Button_Click,
-        Career_Button_Click,
-        Quote_Button_Click,
-        selectedTexts
-    } = req.body;
-
-    try {
-        const visit = await Visit.findOneAndUpdate(
-            { sessionId },
-            {
-                menu,
-                home_Button_Clicks,
-                about_Button_Clicks,
-                contact_ButtonNav_Clicks,
-                whatsapp_Button_Clicks,
-                product_Button_Click,
-                paverblock_Button_Click,
-                holloblock_Button_Click,
-                flyash_Button_Click,
-                quality_Button_Click,
-                Career_Button_Click,
-                Quote_Button_Click,
-                $addToSet: { selectedTexts: { $each: selectedTexts } },
-                visitTime: new Date()
-            },
-            { new: true, upsert: true }
-        );
-
-        if (visit) {
-            res.status(200).json({ message: "Visit data saved successfully" });
-        } else {
-            res.status(404).json({ error: "Failed to save visit data" });
-        }
-    } catch (err) {
-        if (err.name === 'VersionError') {
-            console.error("VersionError:", err);
-        } else {
-            console.error("Error saving visit:", err);
-        }
-        res.status(500).json({ error: "Failed to save visit data" });
-    }
-});
-
-// API Endpoint to Get Visit Data for a Session
-app.get("/api/get-visit/:sessionId", async (req, res) => {
-    const { sessionId } = req.params;
-
-    try {
-        const visit = await Visit.findOne({ sessionId });
-        if (visit) {
-            res.status(200).json(visit);
-        } else {
-            res.status(404).json(null);
-        }
-    } catch (err) {
-        console.error("Error fetching visit data:", err);
-        res.status(500).json({ error: "Failed to fetch visit data" });
-    }
-});
-
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
         const startTime = moment().tz("Asia/Kolkata").startOf('day').subtract(1, 'day').format();
         const endTime = moment().tz("Asia/Kolkata").startOf('day').format();
 
+        console.log(`Fetching data from ${startTime} to ${endTime}`);
+
         const visits = await Visit.find({
             visitTime: { $gte: new Date(startTime), $lt: new Date(endTime) }
-        });
+        }).exec();
+
+        console.log(`Visits found: ${visits.length}`);
+        console.log(visits); // Log fetched visits
 
         if (visits.length === 0) {
             console.log("No visit data found for the specified period.");
@@ -135,16 +66,16 @@ async function sendVisitDataEmail() {
 
         const totalUsers = visits.length;
         const totalPagesViewed = visits.reduce((acc, visit) => 
-            acc + visit.home_Button_Clicks + 
-            visit.about_Button_Clicks + 
-            visit.contact_ButtonNav_Clicks + 
-            visit.whatsapp_Button_Clicks + 
-            visit.product_Button_Click + 
-            visit.paverblock_Button_Click + 
-            visit.holloblock_Button_Click + 
-            visit.flyash_Button_Click + 
-            visit.quality_Button_Click + 
-            visit.Career_Button_Click + 
+            acc + visit.home_Button_Clicks +
+            visit.about_Button_Clicks +
+            visit.contact_ButtonNav_Clicks +
+            visit.whatsapp_Button_Clicks +
+            visit.product_Button_Click +
+            visit.paverblock_Button_Click +
+            visit.holloblock_Button_Click +
+            visit.flyash_Button_Click +
+            visit.quality_Button_Click +
+            visit.Career_Button_Click +
             visit.Quote_Button_Click, 0);
 
         console.log("Total Users:", totalUsers);
