@@ -119,38 +119,10 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        // Calculate the time range for the previous day from 7:00 AM to today at 7:00 AM
-        const startTime = moment().tz("Asia/Kolkata").subtract(1, 'days').set({ hour: 7, minute: 0, second: 0, millisecond: 0 }).toDate();
-        const endTime = moment().tz("Asia/Kolkata").set({ hour: 7, minute: 0, second: 0, millisecond: 0 }).toDate();
+        const visits = await Visit.find();
+        const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss"); // Current time in IST
 
-        console.log(`Fetching data from ${startTime} to ${endTime}`);
-
-        // Fetch visits within the specified time range
-        const visits = await Visit.find({ visitTime: { $gte: startTime, $lt: endTime } });
-
-        // Count unique users
-        const uniqueUsersCount = new Set(visits.map(visit => visit.sessionId)).size;
-        // Calculate total page views
-        const totalPageViews = visits.reduce((acc, visit) => {
-            return acc + visit.home_Button_Clicks
-                + visit.about_Button_Clicks
-                + visit.contact_ButtonNav_Clicks
-                + visit.whatsapp_Button_Clicks
-                + visit.product_Button_Click
-                + visit.paverblock_Button_Click
-                + visit.holloblock_Button_Click
-                + visit.flyash_Button_Click
-                + visit.quality_Button_Click
-                + visit.Career_Button_Click
-                + visit.Quote_Button_Click;
-        }, 0);
-
-        if (!visits.length) {
-            console.log("No visit data found for the specified time range.");
-            return;
-        }
-
-        // Create table rows for the email
+        // Create table rows
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
             <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
@@ -178,11 +150,9 @@ async function sendVisitDataEmail() {
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
-            subject: 'Daily Visit Data Report',
+            subject: 'Automatic Visit Data Update',
             html: `
-                <h1> Daily Visit Data Report for Dhaya Industries</h1>
-                <p>Total Unique Users: ${uniqueUsersCount}</p>
-                <p>Total Page Views: ${totalPageViews}</p>
+                <h1> Users Visit Data Report for Dhaya Industries</h1>
                 <table border="1" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
@@ -194,9 +164,9 @@ async function sendVisitDataEmail() {
                         ${tableRows}
                     </tbody>
                 </table>
-                <p>From Date: ${moment(startTime).format("YYYY-MM-DD")}</p>
-                <p>To Date: ${moment(endTime).format("YYYY-MM-DD")}</p>
-                <p>Time: ${moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss")} IST</p>
+                <p>From Date: ${moment().startOf('day').format("YYYY-MM-DD")}</p>
+                <p>To Date: ${moment().format("YYYY-MM-DD")}</p>
+                <p>Time: ${now} IST</p>
             `
         };
 
@@ -208,8 +178,8 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every day at 7:15 AM
-nodeCron.schedule('* * * * *', () => {
+// Schedule a task to send visit data every 1 minute
+nodeCron.schedule('15 7 * * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
