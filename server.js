@@ -128,6 +128,11 @@ async function sendVisitDataEmail() {
             visitTime: { $gte: new Date(startTime), $lt: new Date(endTime) }
         });
 
+        if (visits.length === 0) {
+            console.log("No visit data found for the specified period.");
+            return;
+        }
+
         const totalUsers = visits.length;
         const totalPagesViewed = visits.reduce((acc, visit) => 
             acc + visit.home_Button_Clicks + 
@@ -141,6 +146,9 @@ async function sendVisitDataEmail() {
             visit.quality_Button_Click + 
             visit.Career_Button_Click + 
             visit.Quote_Button_Click, 0);
+
+        console.log("Total Users:", totalUsers);
+        console.log("Total Pages Viewed:", totalPagesViewed);
 
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
@@ -197,7 +205,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule a task to send visit data every day at 7:15 AM
-nodeCron.schedule('*/1 * * * *', () => {
+nodeCron.schedule('* * * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
