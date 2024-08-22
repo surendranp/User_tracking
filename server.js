@@ -209,7 +209,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule a task to send visit data every day at 7:15 AM
-nodeCron.schedule('15 7 * * *', () => {
+nodeCron.schedule('* * * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
