@@ -39,7 +39,8 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-    selectedTexts: { type: [String], default: [] }
+    selectedTexts: { type: [String], default: [] },
+    visitTime: { type: Date, default: Date.now }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -79,7 +80,8 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
-                $addToSet: { selectedTexts: { $each: selectedTexts } }
+                $addToSet: { selectedTexts: { $each: selectedTexts } },
+                visitTime: new Date()
             },
             { new: true, upsert: true }
         );
@@ -99,30 +101,28 @@ app.post("/api/save-visit", async (req, res) => {
     }
 });
 
-// API Endpoint to Get Visit Data for a Session
-app.get("/api/get-visit/:sessionId", async (req, res) => {
-    const { sessionId } = req.params;
-
-    try {
-        const visit = await Visit.findOne({ sessionId });
-        if (visit) {
-            res.status(200).json(visit);
-        } else {
-            res.status(404).json(null);
-        }
-    } catch (err) {
-        console.error("Error fetching visit data:", err);
-        res.status(500).json({ error: "Failed to fetch visit data" });
-    }
-});
-
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        const visits = await Visit.find();
-        const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss"); // Current time in IST
+        // Calculate the time range for the previous day from 7:00 AM to today at 7:00 AM
+        const startTime = moment().tz("Asia/Kolkata").subtract(1, 'days').set({ hour: 7, minute: 0, second: 0, millisecond: 0 }).toDate();
+        const endTime = moment().tz("Asia/Kolkata").set({ hour: 7, minute: 0, second: 0, millisecond: 0 }).toDate();
 
-        // Create table rows
+        console.log(`Fetching data from ${startTime} to ${endTime}`);
+
+        // Fetch visits within the specified time range
+        const visits = await Visit.find({ visitTime: { $gte: startTime, $lt: endTime } });
+
+        // Count unique users and total page visits
+        const uniqueUsers = new Set(visits.map(visit => visit.sessionId)).size;
+        const totalPageVisits = visits.length;
+
+        if (!visits.length) {
+            console.log("No visit data found for the specified time range.");
+            return;
+        }
+
+        // Create table rows for the email
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
             <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
@@ -150,9 +150,11 @@ async function sendVisitDataEmail() {
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
-            subject: 'Automatic Visit Data Update',
+            subject: 'Daily Visit Data Report',
             html: `
-                <h1> Users Visit Data Report for Dhaya Industries</h1>
+                <h1>Daily Visit Data Report</h1>
+                <p>Total Unique Users: ${uniqueUsers}</p>
+                <p>Total Page Visits: ${totalPageVisits}</p>
                 <table border="1" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
@@ -164,9 +166,8 @@ async function sendVisitDataEmail() {
                         ${tableRows}
                     </tbody>
                 </table>
-                <p>From Date: ${moment().startOf('day').format("YYYY-MM-DD")}</p>
-                <p>To Date: ${moment().format("YYYY-MM-DD")}</p>
-                <p>Time: ${now} IST</p>
+                <p>From Date: ${moment(startTime).format("YYYY-MM-DD HH:mm:ss")} IST</p>
+                <p>To Date: ${moment(endTime).format("YYYY-MM-DD HH:mm:ss")} IST</p>
             `
         };
 
@@ -178,9 +179,9 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 1 minute
-nodeCron.schedule('0 */12 * * * *', () => {
-    console.log('Executing cron job to send visit data email');
+// Schedule a task to send visit data email at 7:15 AM daily
+nodeCron.schedule('0 */1 * * *', () => {
+    console.log('Executing cron job to send daily visit data email');
     sendVisitDataEmail();
 });
 
