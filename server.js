@@ -27,6 +27,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
     sessionId: { type: String, unique: true },
+    menu: { type: Number, default: 0 },
     home_Button_Clicks: { type: Number, default: 0 },
     about_Button_Clicks: { type: Number, default: 0 },
     contact_ButtonNav_Clicks: { type: Number, default: 0 },
@@ -38,49 +39,90 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-    selectedTexts: { type: [String], default: [] },
-    visitTime: { type: Date, default: Date.now }
+    selectedTexts: { type: [String], default: [] }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
 
+// API Endpoint to Save Visit Data
+app.post("/api/save-visit", async (req, res) => {
+    const {
+        sessionId,
+        menu,
+        home_Button_Clicks,
+        about_Button_Clicks,
+        contact_ButtonNav_Clicks,
+        whatsapp_Button_Clicks,
+        product_Button_Click,
+        paverblock_Button_Click,
+        holloblock_Button_Click,
+        flyash_Button_Click,
+        quality_Button_Click,
+        Career_Button_Click,
+        Quote_Button_Click,
+        selectedTexts
+    } = req.body;
+
+    try {
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId },
+            {
+                menu,
+                home_Button_Clicks,
+                about_Button_Clicks,
+                contact_ButtonNav_Clicks,
+                whatsapp_Button_Clicks,
+                product_Button_Click,
+                paverblock_Button_Click,
+                holloblock_Button_Click,
+                flyash_Button_Click,
+                quality_Button_Click,
+                Career_Button_Click,
+                Quote_Button_Click,
+                $addToSet: { selectedTexts: { $each: selectedTexts } }
+            },
+            { new: true, upsert: true }
+        );
+
+        if (visit) {
+            res.status(200).json({ message: "Visit data saved successfully" });
+        } else {
+            res.status(404).json({ error: "Failed to save visit data" });
+        }
+    } catch (err) {
+        if (err.name === 'VersionError') {
+            console.error("VersionError:", err);
+        } else {
+            console.error("Error saving visit:", err);
+        }
+        res.status(500).json({ error: "Failed to save visit data" });
+    }
+});
+
+// API Endpoint to Get Visit Data for a Session
+app.get("/api/get-visit/:sessionId", async (req, res) => {
+    const { sessionId } = req.params;
+
+    try {
+        const visit = await Visit.findOne({ sessionId });
+        if (visit) {
+            res.status(200).json(visit);
+        } else {
+            res.status(404).json(null);
+        }
+    } catch (err) {
+        console.error("Error fetching visit data:", err);
+        res.status(500).json({ error: "Failed to fetch visit data" });
+    }
+});
+
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        const startTime = moment().tz("Asia/Kolkata").startOf('day').subtract(1, 'day').format();
-        const endTime = moment().tz("Asia/Kolkata").startOf('day').format();
+        const visits = await Visit.find();
+        const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss"); // Current time in IST
 
-        console.log(`Fetching data from ${startTime} to ${endTime}`);
-
-        const visits = await Visit.find({
-            visitTime: { $gte: new Date(startTime), $lt: new Date(endTime) }
-        }).exec();
-
-        console.log(`Visits found: ${visits.length}`);
-        console.log(visits); // Log fetched visits
-
-        if (visits.length === 0) {
-            console.log("No visit data found for the specified period.");
-            return;
-        }
-
-        const totalUsers = visits.length;
-        const totalPagesViewed = visits.reduce((acc, visit) => 
-            acc + visit.home_Button_Clicks +
-            visit.about_Button_Clicks +
-            visit.contact_ButtonNav_Clicks +
-            visit.whatsapp_Button_Clicks +
-            visit.product_Button_Click +
-            visit.paverblock_Button_Click +
-            visit.holloblock_Button_Click +
-            visit.flyash_Button_Click +
-            visit.quality_Button_Click +
-            visit.Career_Button_Click +
-            visit.Quote_Button_Click, 0);
-
-        console.log("Total Users:", totalUsers);
-        console.log("Total Pages Viewed:", totalPagesViewed);
-
+        // Create table rows
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
             <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
@@ -95,6 +137,7 @@ async function sendVisitDataEmail() {
             <tr><td>Quote Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td></tr>
         `;
 
+        // Create transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
@@ -103,12 +146,13 @@ async function sendVisitDataEmail() {
             }
         });
 
+        // Define the email content
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
             html: `
-                <h1>Users Visit Data Report for Dhaya Industries</h1>
+                <h1> Users Visit Data Report for Dhaya Industries</h1>
                 <table border="1" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
@@ -120,14 +164,13 @@ async function sendVisitDataEmail() {
                         ${tableRows}
                     </tbody>
                 </table>
-                <p>Total Users: ${totalUsers}</p>
-                <p>Total Pages Viewed: ${totalPagesViewed}</p>
-                <p>From Date: ${moment(startTime).format("YYYY-MM-DD")}</p>
-                <p>To Date: ${moment(endTime).format("YYYY-MM-DD")}</p>
-                <p>Time: ${moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss")} IST</p>
+                <p>From Date: ${moment().startOf('day').format("YYYY-MM-DD")}</p>
+                <p>To Date: ${moment().format("YYYY-MM-DD")}</p>
+                <p>Time: ${now} IST</p>
             `
         };
 
+        // Send the email
         let info = await transporter.sendMail(mailOptions);
         console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
@@ -135,8 +178,8 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every day at 7:15 AM
-nodeCron.schedule('* * * * *', () => {
+// Schedule a task to send visit data every 1 minute
+nodeCron.schedule('15 7 * * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
