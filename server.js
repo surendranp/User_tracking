@@ -40,7 +40,7 @@ const visitSchema = new mongoose.Schema({
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
     selectedTexts: { type: [String], default: [] },
-    visitTime: { type: Date, default: Date.now } // Timestamp of the visit
+    visitTime: { type: Date, default: Date.now }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -81,7 +81,7 @@ app.post("/api/save-visit", async (req, res) => {
                 Career_Button_Click,
                 Quote_Button_Click,
                 $addToSet: { selectedTexts: { $each: selectedTexts } },
-                visitTime: new Date() // Update visit time
+                visitTime: new Date()
             },
             { new: true, upsert: true }
         );
@@ -121,31 +121,27 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 // Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
-        // Define the time range for the report
-        const endTime = moment().startOf('day'); // 7:00 AM today
-        const startTime = endTime.clone().subtract(1, 'days'); // 7:00 AM yesterday
+        const startTime = moment().tz("Asia/Kolkata").startOf('day').subtract(1, 'day').format();
+        const endTime = moment().tz("Asia/Kolkata").startOf('day').format();
 
-        // Fetch visit data within the time range
         const visits = await Visit.find({
-            visitTime: { $gte: startTime.toDate(), $lt: endTime.toDate() }
+            visitTime: { $gte: new Date(startTime), $lt: new Date(endTime) }
         });
 
-        // Calculate total users and page views
-        const totalUsers = new Set(visits.map(visit => visit.sessionId)).size;
-        const totalPagesViewed = visits.reduce((acc, visit) => acc +
-            visit.home_Button_Clicks +
-            visit.about_Button_Clicks +
-            visit.contact_ButtonNav_Clicks +
-            visit.whatsapp_Button_Clicks +
-            visit.product_Button_Click +
-            visit.paverblock_Button_Click +
-            visit.holloblock_Button_Click +
-            visit.flyash_Button_Click +
-            visit.quality_Button_Click +
-            visit.Career_Button_Click +
+        const totalUsers = visits.length;
+        const totalPagesViewed = visits.reduce((acc, visit) => 
+            acc + visit.home_Button_Clicks + 
+            visit.about_Button_Clicks + 
+            visit.contact_ButtonNav_Clicks + 
+            visit.whatsapp_Button_Clicks + 
+            visit.product_Button_Click + 
+            visit.paverblock_Button_Click + 
+            visit.holloblock_Button_Click + 
+            visit.flyash_Button_Click + 
+            visit.quality_Button_Click + 
+            visit.Career_Button_Click + 
             visit.Quote_Button_Click, 0);
 
-        // Create table rows
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
             <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
@@ -160,7 +156,6 @@ async function sendVisitDataEmail() {
             <tr><td>Quote Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td></tr>
         `;
 
-        // Create transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
@@ -169,7 +164,6 @@ async function sendVisitDataEmail() {
             }
         });
 
-        // Define the email content
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
@@ -195,7 +189,6 @@ async function sendVisitDataEmail() {
             `
         };
 
-        // Send the email
         let info = await transporter.sendMail(mailOptions);
         console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
