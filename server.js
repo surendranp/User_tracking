@@ -1,179 +1,47 @@
-require("dotenv").config();
-const express = require("express");
-const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const nodeCron = require("node-cron");
-const nodemailer = require("nodemailer");
-const moment = require("moment-timezone");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static('public'));
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
-    maxPoolSize: 1000
-}).then(() => {
-    console.log("Connected to MongoDB");
-}).catch((err) => {
-    console.error("Connection error:", err);
-});
-
-// Define Schemas and Models
-const visitSchema = new mongoose.Schema({
-    sessionId: { type: String, unique: true },
-    menu: { type: Number, default: 0 },
-    home_Button_Clicks: { type: Number, default: 0 },
-    about_Button_Clicks: { type: Number, default: 0 },
-    contact_ButtonNav_Clicks: { type: Number, default: 0 },
-    whatsapp_Button_Clicks: { type: Number, default: 0 },
-    product_Button_Click: { type: Number, default: 0 },
-    paverblock_Button_Click: { type: Number, default: 0 },
-    holloblock_Button_Click: { type: Number, default: 0 },
-    flyash_Button_Click: { type: Number, default: 0 },
-    quality_Button_Click: { type: Number, default: 0 },
-    Career_Button_Click: { type: Number, default: 0 },
-    Quote_Button_Click: { type: Number, default: 0 },
-    selectedTexts: { type: [String], default: [] },
-    timestamp: { type: Date, default: Date.now } // Track when the visit occurred
-});
-
-const Visit = mongoose.model("Visit", visitSchema);
-
-// API Endpoint to Save Visit Data
-app.post("/api/save-visit", async (req, res) => {
-    const {
-        sessionId,
-        menu,
-        home_Button_Clicks,
-        about_Button_Clicks,
-        contact_ButtonNav_Clicks,
-        whatsapp_Button_Clicks,
-        product_Button_Click,
-        paverblock_Button_Click,
-        holloblock_Button_Click,
-        flyash_Button_Click,
-        quality_Button_Click,
-        Career_Button_Click,
-        Quote_Button_Click,
-        selectedTexts
-    } = req.body;
-
+async function sendVisitDataEmail() {
     try {
-        const visit = await Visit.findOneAndUpdate(
-            { sessionId },
-            {
-                menu,
-                home_Button_Clicks,
-                about_Button_Clicks,
-                contact_ButtonNav_Clicks,
-                whatsapp_Button_Clicks,
-                product_Button_Click,
-                paverblock_Button_Click,
-                holloblock_Button_Click,
-                flyash_Button_Click,
-                quality_Button_Click,
-                Career_Button_Click,
-                Quote_Button_Click,
-                $addToSet: { selectedTexts: { $each: selectedTexts } }
-            },
-            { new: true, upsert: true }
-        );
-
-        if (visit) {
-            res.status(200).json({ message: "Visit data saved successfully" });
-        } else {
-            res.status(404).json({ error: "Failed to save visit data" });
-        }
-    } catch (err) {
-        if (err.name === 'VersionError') {
-            console.error("VersionError:", err);
-        } else {
-            console.error("Error saving visit:", err);
-        }
-        res.status(500).json({ error: "Failed to save visit data" });
-    }
-});
-
-// API Endpoint to Get Visit Data for a Session
-app.get("/api/get-visit/:sessionId", async (req, res) => {
-    const { sessionId } = req.params;
-
-    try {
-        const visit = await Visit.findOne({ sessionId });
-        if (visit) {
-            res.status(200).json(visit);
-        } else {
-            res.status(404).json(null);
-        }
-    } catch (err) {
-        console.error("Error fetching visit data:", err);
-        res.status(500).json({ error: "Failed to fetch visit data" });
-    }
-});
-
-// Function to send daily email with visit data
-async function sendDailyEmail() {
-    try {
-        // Define time periods
         const now = moment().tz("Asia/Kolkata");
-        const todayStart = now.startOf('day').set({ hour: 8 });
-        const todayEnd = now.startOf('day').set({ hour: 20 });
-        const yesterdayStart = todayStart.clone().subtract(1, 'day');
-        const yesterdayEnd = todayEnd.clone().subtract(1, 'day');
+        
+        // Define the time periods
+        const todayStart = now.clone().startOf('day').set({ hour: 8 }); // 8:00 AM today
+        const todayEnd = now.clone().startOf('day').set({ hour: 20 }); // 8:00 PM today
+        const tomorrowStart = todayEnd.clone().add(1, 'minute'); // 8:01 PM today
+        const tomorrowEnd = now.clone().startOf('day').add(1, 'day').set({ hour: 8 }).subtract(1, 'minute'); // 7:59 AM tomorrow
 
-        // Aggregate data for 8:00 AM to 8:00 PM
+        // Query for 8:00 AM to 8:00 PM today
         const dayPeriodVisits = await Visit.find({
             timestamp: { $gte: todayStart.toDate(), $lt: todayEnd.toDate() }
         });
 
-        // Aggregate data for 8:01 PM to 7:59 AM
+        // Query for 8:01 PM today to 7:59 AM tomorrow
         const nightPeriodVisits = await Visit.find({
-            timestamp: { $gte: yesterdayEnd.toDate(), $lt: todayStart.toDate() }
+            timestamp: { $gte: tomorrowStart.toDate(), $lte: tomorrowEnd.toDate() }
         });
 
-        // Create summary for the day period
-        const dayData = {
-            userCount: dayPeriodVisits.length,
-            buttonClicks: {
-                home: dayPeriodVisits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0),
-                about: dayPeriodVisits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0),
-                contact: dayPeriodVisits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0),
-                whatsapp: dayPeriodVisits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0),
-                product: dayPeriodVisits.reduce((acc, visit) => acc + visit.product_Button_Click, 0),
-                paverblock: dayPeriodVisits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0),
-                holloblock: dayPeriodVisits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0),
-                flyash: dayPeriodVisits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0),
-                quality: dayPeriodVisits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0),
-                career: dayPeriodVisits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0),
-                quote: dayPeriodVisits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0),
-            },
-            pageViews: dayPeriodVisits.length // Assuming one view per visit
+        // Function to calculate button clicks and page views
+        const calculateStats = (visits) => {
+            return {
+                userCount: visits.length,
+                buttonClicks: {
+                    home: visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0),
+                    about: visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0),
+                    contact: visits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0),
+                    whatsapp: visits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0),
+                    product: visits.reduce((acc, visit) => acc + visit.product_Button_Click, 0),
+                    paverblock: visits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0),
+                    holloblock: visits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0),
+                    flyash: visits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0),
+                    quality: visits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0),
+                    career: visits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0),
+                    quote: visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0),
+                },
+                pageViews: visits.length // Assuming one view per visit
+            };
         };
 
-        // Create summary for the night period
-        const nightData = {
-            userCount: nightPeriodVisits.length,
-            buttonClicks: {
-                home: nightPeriodVisits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0),
-                about: nightPeriodVisits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0),
-                contact: nightPeriodVisits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0),
-                whatsapp: nightPeriodVisits.reduce((acc, visit) => acc + visit.whatsapp_Button_Clicks, 0),
-                product: nightPeriodVisits.reduce((acc, visit) => acc + visit.product_Button_Click, 0),
-                paverblock: nightPeriodVisits.reduce((acc, visit) => acc + visit.paverblock_Button_Click, 0),
-                holloblock: nightPeriodVisits.reduce((acc, visit) => acc + visit.holloblock_Button_Click, 0),
-                flyash: nightPeriodVisits.reduce((acc, visit) => acc + visit.flyash_Button_Click, 0),
-                quality: nightPeriodVisits.reduce((acc, visit) => acc + visit.quality_Button_Click, 0),
-                career: nightPeriodVisits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0),
-                quote: nightPeriodVisits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0),
-            },
-            pageViews: nightPeriodVisits.length // Assuming one view per visit
-        };
+        // Get statistics for each period
+        const dayData = calculateStats(dayPeriodVisits);
+        const nightData = calculateStats(nightPeriodVisits);
 
         // Create transporter for sending emails
         let transporter = nodemailer.createTransport({
@@ -190,8 +58,8 @@ async function sendDailyEmail() {
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Daily Visit Data Report',
             html: `
-                <h1>Daily Visit Data Report</h1>
-                <h2>8:00 AM to 8:00 PM</h2>
+                <h1>Visit Data Report</h1>
+                <h2>8:00 AM to 8:00 PM Today</h2>
                 <p>User Count: ${dayData.userCount}</p>
                 <p>Button Clicks:</p>
                 <ul>
@@ -209,7 +77,7 @@ async function sendDailyEmail() {
                 </ul>
                 <p>Page Views: ${dayData.pageViews}</p>
 
-                <h2>8:01 PM to 7:59 AM</h2>
+                <h2>8:01 PM Today to 7:59 AM Tomorrow</h2>
                 <p>User Count: ${nightData.userCount}</p>
                 <p>Button Clicks:</p>
                 <ul>
@@ -237,10 +105,10 @@ async function sendDailyEmail() {
     }
 }
 
-// Schedule the email to be sent every day at 9:00 AM IST
-nodeCron.schedule('* * * * *', () => {
+// Schedule the email to be sent every day at 9 AM IST
+nodeCron.schedule('0 9 * * *', () => {
     console.log('Executing cron job to send daily report email');
-    sendDailyEmail();
+    sendVisitDataEmail();
 });
 
 // Start the Server
