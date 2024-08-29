@@ -182,9 +182,9 @@ async function sendVisitDataEmail() {
         let mailOptions = {
             from: process.env.EMAIL_USER,
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
-            subject: 'Daily Visit Data Report',
+            subject: 'Daily user Visit Data Report',
             html: `
-                <h1>Visit Data Report</h1>
+                <h1>User Visit Data Report</h1>
                 <h2>8:00 AM to 8:00 PM Today</h2>
                 <p>User Count: ${dayData.userCount}</p>
                 <p>Button Clicks:</p>
