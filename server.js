@@ -1,3 +1,123 @@
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const nodeCron = require("node-cron");
+const nodemailer = require("nodemailer");
+const moment = require("moment-timezone");
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static('public'));
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrackingDB", {
+    maxPoolSize: 1000
+}).then(() => {
+    console.log("Connected to MongoDB");
+}).catch((err) => {
+    console.error("Connection error:", err);
+});
+
+// Define Schemas and Models
+const visitSchema = new mongoose.Schema({
+    sessionId: { type: String, unique: true },
+    menu: { type: Number, default: 0 },
+    home_Button_Clicks: { type: Number, default: 0 },
+    about_Button_Clicks: { type: Number, default: 0 },
+    contact_ButtonNav_Clicks: { type: Number, default: 0 },
+    whatsapp_Button_Clicks: { type: Number, default: 0 },
+    product_Button_Click: { type: Number, default: 0 },
+    paverblock_Button_Click: { type: Number, default: 0 },
+    holloblock_Button_Click: { type: Number, default: 0 },
+    flyash_Button_Click: { type: Number, default: 0 },
+    quality_Button_Click: { type: Number, default: 0 },
+    Career_Button_Click: { type: Number, default: 0 },
+    Quote_Button_Click: { type: Number, default: 0 },
+    selectedTexts: { type: [String], default: [] },
+    timestamp: { type: Date, default: Date.now } // Track when the visit occurred
+});
+
+const Visit = mongoose.model("Visit", visitSchema);
+
+// API Endpoint to Save Visit Data
+app.post("/api/save-visit", async (req, res) => {
+    const {
+        sessionId,
+        menu,
+        home_Button_Clicks,
+        about_Button_Clicks,
+        contact_ButtonNav_Clicks,
+        whatsapp_Button_Clicks,
+        product_Button_Click,
+        paverblock_Button_Click,
+        holloblock_Button_Click,
+        flyash_Button_Click,
+        quality_Button_Click,
+        Career_Button_Click,
+        Quote_Button_Click,
+        selectedTexts
+    } = req.body;
+
+    try {
+        const visit = await Visit.findOneAndUpdate(
+            { sessionId },
+            {
+                menu,
+                home_Button_Clicks,
+                about_Button_Clicks,
+                contact_ButtonNav_Clicks,
+                whatsapp_Button_Clicks,
+                product_Button_Click,
+                paverblock_Button_Click,
+                holloblock_Button_Click,
+                flyash_Button_Click,
+                quality_Button_Click,
+                Career_Button_Click,
+                Quote_Button_Click,
+                $addToSet: { selectedTexts: { $each: selectedTexts } }
+            },
+            { new: true, upsert: true }
+        );
+
+        if (visit) {
+            res.status(200).json({ message: "Visit data saved successfully" });
+        } else {
+            res.status(404).json({ error: "Failed to save visit data" });
+        }
+    } catch (err) {
+        if (err.name === 'VersionError') {
+            console.error("VersionError:", err);
+        } else {
+            console.error("Error saving visit:", err);
+        }
+        res.status(500).json({ error: "Failed to save visit data" });
+    }
+});
+
+// API Endpoint to Get Visit Data for a Session
+app.get("/api/get-visit/:sessionId", async (req, res) => {
+    const { sessionId } = req.params;
+
+    try {
+        const visit = await Visit.findOne({ sessionId });
+        if (visit) {
+            res.status(200).json(visit);
+        } else {
+            res.status(404).json(null);
+        }
+    } catch (err) {
+        console.error("Error fetching visit data:", err);
+        res.status(500).json({ error: "Failed to fetch visit data" });
+    }
+});
+
+// Function to send daily email with visit data
 async function sendVisitDataEmail() {
     try {
         const now = moment().tz("Asia/Kolkata");
