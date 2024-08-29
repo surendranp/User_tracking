@@ -39,7 +39,8 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-    selectedTexts: { type: [String], default: [] }
+    selectedTexts: { type: [String], default: [] },
+    totalPageClicks: { type: Number, default: 0 },
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -64,6 +65,20 @@ app.post("/api/save-visit", async (req, res) => {
     } = req.body;
 
     try {
+        // Calculate the total number of button clicks for this session
+        const totalClicks = 
+            home_Button_Clicks +
+            about_Button_Clicks +
+            contact_ButtonNav_Clicks +
+            whatsapp_Button_Clicks +
+            product_Button_Click +
+            paverblock_Button_Click +
+            holloblock_Button_Click +
+            flyash_Button_Click +
+            quality_Button_Click +
+            Career_Button_Click +
+            Quote_Button_Click;
+
         const visit = await Visit.findOneAndUpdate(
             { sessionId },
             {
@@ -79,6 +94,7 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
+                totalPageClicks: totalClicks,
                 $addToSet: { selectedTexts: { $each: selectedTexts } }
             },
             { new: true, upsert: true }
@@ -122,8 +138,13 @@ async function sendVisitDataEmail() {
         const visits = await Visit.find();
         const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss"); // Current time in IST
 
+        const totalUsers = visits.length;
+        const totalClicks = visits.reduce((acc, visit) => acc + visit.totalPageClicks, 0);
+
         // Create table rows
         const tableRows = `
+            <tr><td>Total Users</td><td>${totalUsers}</td></tr>
+            <tr><td>Total Button Clicks</td><td>${totalClicks}</td></tr>
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
             <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
             <tr><td>Contact Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.contact_ButtonNav_Clicks, 0)}</td></tr>
@@ -152,7 +173,7 @@ async function sendVisitDataEmail() {
             to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
             html: `
-                <h1> Users Visit Data Report for Dhaya Industries</h1>
+                <h1>Users Visit Data Report for Dhaya Industries</h1>
                 <table border="1" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
@@ -178,7 +199,7 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 1 minute
+// Schedule a task to send visit data every 12 hours
 nodeCron.schedule('0 0 */12 * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
