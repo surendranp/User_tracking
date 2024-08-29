@@ -40,7 +40,7 @@ const visitSchema = new mongoose.Schema({
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
     selectedTexts: { type: [String], default: [] },
-    timestamp: { type: Date, default: Date.now } // Track when the visit occurred
+    timestamp: { type: Date, default: Date.now } // Add timestamp to track visit time
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -117,11 +117,11 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
     }
 });
 
-// Function to send daily email with visit data
+// Function to send email with visit data
 async function sendVisitDataEmail() {
     try {
         const now = moment().tz("Asia/Kolkata");
-        
+
         // Define the time periods
         const todayStart = now.clone().startOf('day').set({ hour: 8 }); // 8:00 AM today
         const todayEnd = now.clone().startOf('day').set({ hour: 20 }); // 8:00 PM today
@@ -138,7 +138,7 @@ async function sendVisitDataEmail() {
             timestamp: { $gte: tomorrowStart.toDate(), $lte: tomorrowEnd.toDate() }
         });
 
-        // Function to calculate button clicks and page views
+        // Function to calculate button clicks, page views, and text selections
         const calculateStats = (visits) => {
             return {
                 userCount: visits.length,
@@ -155,7 +155,13 @@ async function sendVisitDataEmail() {
                     career: visits.reduce((acc, visit) => acc + visit.Career_Button_Click, 0),
                     quote: visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0),
                 },
-                pageViews: visits.length // Assuming one view per visit
+                pageViews: visits.length, // Assuming one view per visit
+                textSelections: visits.reduce((acc, visit) => {
+                    visit.selectedTexts.forEach(text => {
+                        acc[text] = (acc[text] || 0) + 1;
+                    });
+                    return acc;
+                }, {})
             };
         };
 
@@ -196,6 +202,10 @@ async function sendVisitDataEmail() {
                     <li>Quote: ${dayData.buttonClicks.quote}</li>
                 </ul>
                 <p>Page Views: ${dayData.pageViews}</p>
+                <p>Text Selections:</p>
+                <ul>
+                    ${Object.entries(dayData.textSelections).map(([text, count]) => `<li>${text}: ${count}</li>`).join('')}
+                </ul>
 
                 <h2>8:01 PM Today to 7:59 AM Tomorrow</h2>
                 <p>User Count: ${nightData.userCount}</p>
@@ -214,6 +224,10 @@ async function sendVisitDataEmail() {
                     <li>Quote: ${nightData.buttonClicks.quote}</li>
                 </ul>
                 <p>Page Views: ${nightData.pageViews}</p>
+                <p>Text Selections:</p>
+                <ul>
+                    ${Object.entries(nightData.textSelections).map(([text, count]) => `<li>${text}: ${count}</li>`).join('')}
+                </ul>
             `
         };
 
