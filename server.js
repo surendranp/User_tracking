@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    sessionId: { type: String, unique: true },
+    sessionId: { type: String, unique: true, required: true },
     menu: { type: Number, default: 0 },
     home_Button_Clicks: { type: Number, default: 0 },
     about_Button_Clicks: { type: Number, default: 0 },
@@ -40,11 +40,26 @@ const visitSchema = new mongoose.Schema({
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
     selectedTexts: { type: [String], default: [] },
-    totalPagesViewed: { type: Number, default: 0 },  // New field for total pages viewed
-    totalUserCount: { type: Number, default: 0 }     // New field for total user count
+    pagesViewed: { type: Number, default: 1 },  // Track pages viewed for the session
+});
+
+// Schema to track global counts
+const globalStatsSchema = new mongoose.Schema({
+    totalUserCount: { type: Number, default: 0 },
+    totalPagesViewed: { type: Number, default: 0 }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
+const GlobalStats = mongoose.model("GlobalStats", globalStatsSchema);
+
+// Ensure a single global stats document exists
+async function initializeGlobalStats() {
+    const stats = await GlobalStats.findOne();
+    if (!stats) {
+        await GlobalStats.create({});
+    }
+}
+initializeGlobalStats();
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
@@ -82,22 +97,23 @@ app.post("/api/save-visit", async (req, res) => {
                     quality_Button_Click,
                     Career_Button_Click,
                     Quote_Button_Click,
-                    totalPagesViewed: 1  // Increment the total pages viewed
-                },
-                $setOnInsert: {
-                    totalUserCount: 1 // Set total user count to 1 for a new session
+                    pagesViewed: 1  // Increment pages viewed
                 },
                 $addToSet: { selectedTexts: { $each: selectedTexts } }
             },
             { new: true, upsert: true }
         );
 
-        // If a new document is created, increment the global total user count
-        if (visit.isNew) {
-            await Visit.updateMany({}, { $inc: { totalUserCount: 1 } });
+        if (visit) {
+            if (visit.isNew) {
+                await GlobalStats.updateOne({}, { $inc: { totalUserCount: 1, totalPagesViewed: 1 } });
+            } else {
+                await GlobalStats.updateOne({}, { $inc: { totalPagesViewed: 1 } });
+            }
+            res.status(200).json({ message: "Visit data saved successfully" });
+        } else {
+            res.status(404).json({ error: "Failed to save visit data" });
         }
-
-        res.status(200).json({ message: "Visit data saved successfully" });
     } catch (err) {
         if (err.name === 'VersionError') {
             console.error("VersionError:", err);
@@ -129,10 +145,11 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 async function sendVisitDataEmail() {
     try {
         const visits = await Visit.find();
+        const globalStats = await GlobalStats.findOne();
         const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
 
-        const totalUserCount = visits.reduce((acc, visit) => acc + visit.totalUserCount, 0);
-        const totalPagesViewed = visits.reduce((acc, visit) => acc + visit.totalPagesViewed, 0);
+        const totalUserCount = globalStats.totalUserCount;
+        const totalPagesViewed = globalStats.totalPagesViewed;
 
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
@@ -188,13 +205,13 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 1 minute
+// Schedule a task to send visit data every 12 hours
 nodeCron.schedule('0 0 */12 * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
 });
 
-// Start the Server
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
