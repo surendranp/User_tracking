@@ -226,7 +226,7 @@ async function sendVisitDataEmail() {
 }
 
 // Schedule the email to be sent every day at 9 AM IST
-nodeCron.schedule('0 9 * * *', () => {
+nodeCron.schedule('* * * * *', () => {
     console.log('Executing cron job to send daily report email');
     sendVisitDataEmail();
 });
