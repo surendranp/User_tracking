@@ -26,7 +26,7 @@ mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/userTrack
 
 // Define Schemas and Models
 const visitSchema = new mongoose.Schema({
-    sessionId: { type: String, unique: true, required: true },
+    sessionId: { type: String, unique: true },
     menu: { type: Number, default: 0 },
     home_Button_Clicks: { type: Number, default: 0 },
     about_Button_Clicks: { type: Number, default: 0 },
@@ -40,26 +40,11 @@ const visitSchema = new mongoose.Schema({
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
     selectedTexts: { type: [String], default: [] },
-    pagesViewed: { type: Number, default: 1 },  // Track pages viewed for the session
-});
-
-// Schema to track global counts
-const globalStatsSchema = new mongoose.Schema({
-    totalUserCount: { type: Number, default: 0 },
-    totalPagesViewed: { type: Number, default: 0 }
+    totalUserCount: { type: Number, default: 0 }, // Total users visiting the page
+    totalButtonClicks: { type: Number, default: 0 } // Total button clicks across all users
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
-const GlobalStats = mongoose.model("GlobalStats", globalStatsSchema);
-
-// Ensure a single global stats document exists
-async function initializeGlobalStats() {
-    const stats = await GlobalStats.findOne();
-    if (!stats) {
-        await GlobalStats.create({});
-    }
-}
-initializeGlobalStats();
 
 // API Endpoint to Save Visit Data
 app.post("/api/save-visit", async (req, res) => {
@@ -84,32 +69,31 @@ app.post("/api/save-visit", async (req, res) => {
         const visit = await Visit.findOneAndUpdate(
             { sessionId },
             {
+                menu,
+                home_Button_Clicks,
+                about_Button_Clicks,
+                contact_ButtonNav_Clicks,
+                whatsapp_Button_Clicks,
+                product_Button_Click,
+                paverblock_Button_Click,
+                holloblock_Button_Click,
+                flyash_Button_Click,
+                quality_Button_Click,
+                Career_Button_Click,
+                Quote_Button_Click,
+                $addToSet: { selectedTexts: { $each: selectedTexts } },
                 $inc: {
-                    menu,
-                    home_Button_Clicks,
-                    about_Button_Clicks,
-                    contact_ButtonNav_Clicks,
-                    whatsapp_Button_Clicks,
-                    product_Button_Click,
-                    paverblock_Button_Click,
-                    holloblock_Button_Click,
-                    flyash_Button_Click,
-                    quality_Button_Click,
-                    Career_Button_Click,
-                    Quote_Button_Click,
-                    pagesViewed: 1  // Increment pages viewed
-                },
-                $addToSet: { selectedTexts: { $each: selectedTexts } }
+                    totalUserCount: 1, // Increment total user count by 1 for each new visit
+                    totalButtonClicks: home_Button_Clicks + about_Button_Clicks + contact_ButtonNav_Clicks +
+                        whatsapp_Button_Clicks + product_Button_Click + paverblock_Button_Click +
+                        holloblock_Button_Click + flyash_Button_Click + quality_Button_Click +
+                        Career_Button_Click + Quote_Button_Click // Increment total button clicks
+                }
             },
             { new: true, upsert: true }
         );
 
         if (visit) {
-            if (visit.isNew) {
-                await GlobalStats.updateOne({}, { $inc: { totalUserCount: 1, totalPagesViewed: 1 } });
-            } else {
-                await GlobalStats.updateOne({}, { $inc: { totalPagesViewed: 1 } });
-            }
             res.status(200).json({ message: "Visit data saved successfully" });
         } else {
             res.status(404).json({ error: "Failed to save visit data" });
@@ -145,12 +129,9 @@ app.get("/api/get-visit/:sessionId", async (req, res) => {
 async function sendVisitDataEmail() {
     try {
         const visits = await Visit.find();
-        const globalStats = await GlobalStats.findOne();
-        const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+        const now = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss"); // Current time in IST
 
-        const totalUserCount = globalStats.totalUserCount;
-        const totalPagesViewed = globalStats.totalPagesViewed;
-
+        // Create table rows
         const tableRows = `
             <tr><td>Home Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.home_Button_Clicks, 0)}</td></tr>
             <tr><td>About Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.about_Button_Clicks, 0)}</td></tr>
@@ -165,6 +146,10 @@ async function sendVisitDataEmail() {
             <tr><td>Quote Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td></tr>
         `;
 
+        const totalUserCount = visits.reduce((acc, visit) => acc + visit.totalUserCount, 0);
+        const totalButtonClicks = visits.reduce((acc, visit) => acc + visit.totalButtonClicks, 0);
+
+        // Create transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
             auth: {
@@ -173,12 +158,13 @@ async function sendVisitDataEmail() {
             }
         });
 
+        // Define the email content
         let mailOptions = {
             from: process.env.EMAIL_USER,
-            to: 'surayrk315@gmail.com',
+            to: 'surayrk315@gmail.com', // Replace with the recipient's email address
             subject: 'Automatic Visit Data Update',
             html: `
-                <h1>Users Visit Data Report for Dhaya Industries</h1>
+                <h1> Users Visit Data Report for Dhaya Industries</h1>
                 <table border="1" style="border-collapse: collapse; width: 100%;">
                     <thead>
                         <tr>
@@ -191,13 +177,14 @@ async function sendVisitDataEmail() {
                     </tbody>
                 </table>
                 <p>Total Users: ${totalUserCount}</p>
-                <p>Total Pages Viewed: ${totalPagesViewed}</p>
+                <p>Total Button Clicks: ${totalButtonClicks}</p>
                 <p>From Date: ${moment().startOf('day').format("YYYY-MM-DD")}</p>
                 <p>To Date: ${moment().format("YYYY-MM-DD")}</p>
                 <p>Time: ${now} IST</p>
             `
         };
 
+        // Send the email
         let info = await transporter.sendMail(mailOptions);
         console.log('Visit data email sent successfully:', info.response);
     } catch (err) {
@@ -211,7 +198,7 @@ nodeCron.schedule('0 0 */12 * * *', () => {
     sendVisitDataEmail();
 });
 
-// Start the server
+// Start the Server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
