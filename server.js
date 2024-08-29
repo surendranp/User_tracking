@@ -39,9 +39,7 @@ const visitSchema = new mongoose.Schema({
     quality_Button_Click: { type: Number, default: 0 },
     Career_Button_Click: { type: Number, default: 0 },
     Quote_Button_Click: { type: Number, default: 0 },
-    selectedTexts: { type: [String], default: [] },
-    totalUserCount: { type: Number, default: 0 }, // Total users visiting the page
-    totalButtonClicks: { type: Number, default: 0 } // Total button clicks across all users
+    selectedTexts: { type: [String], default: [] }
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
@@ -81,14 +79,7 @@ app.post("/api/save-visit", async (req, res) => {
                 quality_Button_Click,
                 Career_Button_Click,
                 Quote_Button_Click,
-                $addToSet: { selectedTexts: { $each: selectedTexts } },
-                $inc: {
-                    totalUserCount: 1, // Increment total user count by 1 for each new visit
-                    totalButtonClicks: home_Button_Clicks + about_Button_Clicks + contact_ButtonNav_Clicks +
-                        whatsapp_Button_Clicks + product_Button_Click + paverblock_Button_Click +
-                        holloblock_Button_Click + flyash_Button_Click + quality_Button_Click +
-                        Career_Button_Click + Quote_Button_Click // Increment total button clicks
-                }
+                $addToSet: { selectedTexts: { $each: selectedTexts } }
             },
             { new: true, upsert: true }
         );
@@ -146,9 +137,6 @@ async function sendVisitDataEmail() {
             <tr><td>Quote Button Clicks</td><td>${visits.reduce((acc, visit) => acc + visit.Quote_Button_Click, 0)}</td></tr>
         `;
 
-        const totalUserCount = visits.reduce((acc, visit) => acc + visit.totalUserCount, 0);
-        const totalButtonClicks = visits.reduce((acc, visit) => acc + visit.totalButtonClicks, 0);
-
         // Create transporter for sending emails
         let transporter = nodemailer.createTransport({
             service: 'Gmail',
@@ -176,8 +164,6 @@ async function sendVisitDataEmail() {
                         ${tableRows}
                     </tbody>
                 </table>
-                <p>Total Users: ${totalUserCount}</p>
-                <p>Total Button Clicks: ${totalButtonClicks}</p>
                 <p>From Date: ${moment().startOf('day').format("YYYY-MM-DD")}</p>
                 <p>To Date: ${moment().format("YYYY-MM-DD")}</p>
                 <p>Time: ${now} IST</p>
@@ -192,7 +178,7 @@ async function sendVisitDataEmail() {
     }
 }
 
-// Schedule a task to send visit data every 12 hours
+// Schedule a task to send visit data every 1 minute
 nodeCron.schedule('0 0 */12 * * *', () => {
     console.log('Executing cron job to send visit data email');
     sendVisitDataEmail();
